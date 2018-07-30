@@ -1,0 +1,11 @@
+.demo {
+  background-color: aliceblue;
+}
+.demo-container {
+  padding: 1rem 2rem 1rem 2rem;
+}
+.demo-segment{
+  padding: 1rem;
+  background-color: #fff;
+  border-radius: 0.4rem;
+}
