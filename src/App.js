@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PivotTable from './components/pivot/index.js'
+import PivotTable from './components/pivot/test.js'
 import 'whatwg-fetch';
 import URL from './api.config.js'
 import './App.css'
@@ -49,7 +49,7 @@ class App extends Component {
           <PivotTable 
           aggFunc={this.state.aggFunc}
           dataSource={this.state.dataSource}
-          Dimensions={this.state.Dimensions} 
+          Dimensions={this.state.Dimensions.slice(3)} 
           Measures={this.state.Measures} />
         </div>
       </div>

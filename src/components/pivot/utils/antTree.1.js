@@ -2,37 +2,34 @@ function transTree (dataTree) {
     let antTree = {
         key: 0,
         dimension: 'All',
-        _children: [],
-        _level: 0
+        children: []
     }
-    // definedChildren(antTree)
+    definedChildren(antTree)
     let cnt = 1
-    function dfs(node, antNode, level) {
+    function dfs(node, antNode) {
         let aggData = node.aggData()
-        // Object.defineProperty(antNode, '_hide', {
-        //     writable: true,
-        //     value: false
-        // })
+        Object.defineProperty(antNode, '_hide', {
+            writable: true,
+            value: false
+        })
         for (let child in node.children) {
             let antChild = {
                 key: cnt++,
-                dimension: child || 'null',
-                _children: [],
-                _level: level
+                dimension: child
             }
-            // definedChildren(antChild)
+            definedChildren(antChild)
             antNode._children.push(antChild)
-            dfs(node.children[child], antChild, level + 1)
+            dfs(node.children[child], antChild)
         }
         // console.log(aggData)
         for (let measure in aggData) {
             antNode[measure] = aggData[measure]
         }
-        if (antNode._children.length === 0) {
-            antNode._children = undefined
-        }
+        // if (antNode.children.length === 0) {
+        //     antNode.children = undefined
+        // }
     }
-    dfs(dataTree, antTree, 1)
+    dfs(dataTree, antTree)
     console.log(antTree)
     return [antTree]
 }
