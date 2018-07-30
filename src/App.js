@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import PivotTable from './components/pivot/test.js'
+import PivotTable from './components/pivot/index.js'
 import 'whatwg-fetch';
 import URL from './api.config.js'
 import './App.css'

@@ -59,32 +59,49 @@ class PivotTable extends Component {
         })
 
     }
-    expandHandler = (expanded, record) => {
-        const { Measures } = this.props
-        console.log(expanded, record)
-        record._hide = !expanded
-        let newColumns = Measures.map((mea) => {
-            return {
-                title: mea,
-                dataIndex: mea,
-                key: mea
-              }
-        })
-        this.setState({
-            columns: columns.concat(newColumns)
-        })
+    dfsRender = (record) => {
+        const { Measures, Dimensions } = this.props
+        if (record._children && record._children.length > 0) {
+            let dimCode = Dimensions[record._children[0]._level]
+            let cols = [{
+                title: dimCode,
+                dataIndex: 'dimension',
+                key: 'dimension'
+            }]
+            console.log('dimCode', dimCode)
+            cols = cols.concat(Measures.map((mea) => {
+                return {
+                    title: mea,
+                    dataIndex: mea,
+                    key: mea
+                  }
+            }))
+            return (
+                <Table
+                  columns={cols}
+                  dataSource={record._children}
+                  expandedRowRender={this.dfsRender}
+                  pagination={{
+                    defaultPageSize: 20,
+                    hideOnSinglePage: true
+                }}
+                />
+              )
+        }
     }
+
     render () {
+        const { Measures } = this.props
         console.log(this.state.antTree)
         return (<Table 
-            defaultExpandAllRows={true}
-            bordered={true}
             pagination={{
-                defaultPageSize: 20
+                defaultPageSize: 50,
+                hideOnSinglePage: true
             }}
+            expandedRowRender={this.dfsRender}
             columns={this.state.columns} 
-            rowSelection={rowSelection} 
-            onExpand={this.expandHandler}
+            rowSelection={rowSelection}
+            scroll={{x: Measures.length * 200}}
             dataSource={this.state.antTree} />)
     }
 }
