@@ -3,14 +3,10 @@ import { Table } from 'antd';
 import { DataSet } from './utils/dataset.js'
 import { transTree } from './utils/antTree.js'
 
-const columns = [{
+let columns = [{
   title: 'Dimension',
   dataIndex: 'dimension',
   key: 'dimension',
-}, {
-  title: 'count',
-  dataIndex: 'count',
-  key: 'count',
 }];
 
 // rowSelection objects indicates the need for row selection
@@ -30,28 +26,41 @@ class PivotTable extends Component {
     constructor (props) {
         super(props)
         this.state = {
-            antTree: []
+            antTree: [],
+            columns: columns
         }
     }
     componentWillReceiveProps (nextProps) {
-        const { dataSource, aggFunc } = nextProps
+        const { dataSource, aggFunc, Dimensions, Measures } = nextProps
         this.dataset = new DataSet({
             FACT_TABLE: dataSource,
-            DIMENSIONS: ['Sex', 'Pclass', 'Embarked'],
-            MEASURES: ['Age'],
+            DIMENSIONS: Dimensions,
+            MEASURES: Measures,
             aggFunc: aggFunc
         })
 
-        let tree = this.dataset.buildTree()
-        tree = this.dataset.aggTree(tree)
-        tree = transTree(tree)
+        this.dataset.buildTree()
+        console.log('build finish')
+        this.dataset.aggTree()
+        console.log('agg fisish')
+        let tree = transTree(this.dataset.tree)
+        console.log('trans finish')
+        let newColumns = Measures.map((mea) => {
+            return {
+                title: mea,
+                dataIndex: mea,
+                key: mea
+              }
+        })
         this.setState({
-            antTree: tree
+            antTree: tree,
+            columns: columns.concat(newColumns)
         })
 
     }
     render () {
-        return (<Table columns={columns} rowSelection={rowSelection} dataSource={this.state.antTree} />)
+        // console.log(this.state)
+        return (<Table columns={this.state.columns} rowSelection={rowSelection} dataSource={this.state.antTree} />)
     }
 }
 

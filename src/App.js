@@ -3,6 +3,21 @@ import PivotTable from './components/pivot/index.js'
 import 'whatwg-fetch';
 import URL from './api.config.js'
 import './App.css'
+function avg (subset, MEASURES) {
+  let sums = {}
+  MEASURES.forEach((mea) => {
+    sums[mea] = 0
+  })
+  subset.forEach((record) => {
+    MEASURES.forEach((mea) => {
+      sums[mea] += (Number(record[mea]) || 0)
+    })
+  })
+  MEASURES.forEach((mea) => {
+    sums[mea] = (sums[mea] / subset.length).toFixed(2)
+  })
+  return sums
+}
 class App extends Component {
   constructor () {
     super()
@@ -10,9 +25,7 @@ class App extends Component {
       dataSource: [],
       Dimensions: [],
       Measures: [],
-      aggFunc: (subset) => {
-        return { count: subset.length }
-      }
+      aggFunc: avg
     }
   }
   componentDidMount () {

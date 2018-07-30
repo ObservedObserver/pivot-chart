@@ -10,9 +10,9 @@ class Node {
     concat (arr) {
         return this.rawData.concat(arr)
     }
-    get aggData () {
+    aggData (MEASURES = []) {
         if (typeof this._aggData === 'undefined') {
-        this._aggData = this.aggFunc(this.rawData)
+        this._aggData = this.aggFunc(this.rawData, MEASURES)
         }
         return this._aggData
     }
@@ -31,6 +31,7 @@ class DataSet {
         this.FACT_TABLE.forEach(record => {
             this.insertNode(record, tree, 0)
         })
+        this.tree = tree
         return tree
     }
     
@@ -47,11 +48,12 @@ class DataSet {
         }
     }
     
-    aggTree (node) {
+    aggTree (node = this.tree) {
         // leaf has no child
         for (let child in node.children) {
             node.rawData = node.rawData.concat(this.aggTree(node.children[child]).rawData)
         }
+        node.aggData(this.MEASURES)
         return node
     }
 }
