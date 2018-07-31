@@ -1,0 +1,23 @@
+.sheet{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    bottom: 0px;
+    right: 0px;
+}
+
+.sheet-sider{
+    padding-top: 1rem;
+    padding-left: 1.8rem;
+    padding-right: 1.8rem;
+    background: #fff;
+}
+.sheet-list-container{
+    height: 20rem;
+    overflow-y: auto;
+}
+.sheet-selector{
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+    background: #fff;
+}
