@@ -26,7 +26,6 @@ function transTree (dataTree) {
         }
     }
     dfs(dataTree, antTree, 1)
-    console.log(antTree)
     return [antTree]
 }
 

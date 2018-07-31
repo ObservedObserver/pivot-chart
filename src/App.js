@@ -14,6 +14,9 @@ function avg (subset, MEASURES) {
     })
   })
   MEASURES.forEach((mea) => {
+    // let value = (sums[mea] / subset.length).toFixed(2)
+    // let color = value > 1000 ? 'red' : 'green'
+    // sums[mea] = (<span style={{color: color}}>{value}</span>)
     sums[mea] = (sums[mea] / subset.length).toFixed(2)
   })
   return sums
@@ -47,6 +50,8 @@ class App extends Component {
       <div className="demo-container">
         <div className="demo-segment">
           <PivotTable 
+          // height={700}
+          size={'middle'}
           aggFunc={this.state.aggFunc}
           dataSource={this.state.dataSource}
           Dimensions={this.state.Dimensions.slice(3)} 
