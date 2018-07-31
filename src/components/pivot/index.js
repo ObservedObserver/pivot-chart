@@ -3,23 +3,10 @@ import { Table } from 'antd';
 import { DataSet } from './utils/dataset.js'
 import { transTree } from './utils/antTree.js'
 
-let columns = [{
-  title: 'Dimension',
-  dataIndex: 'dimension',
-  key: 'dimension',
-}];
 
 // rowSelection objects indicates the need for row selection
 const rowSelection = {
-  onChange: (selectedRowKeys, selectedRows) => {
-    console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-  },
-  onSelect: (record, selected, selectedRows) => {
-    console.log(record, selected, selectedRows);
-  },
-  onSelectAll: (selected, selectedRows, changeRows) => {
-    console.log(selected, selectedRows, changeRows);
-  },
+    fixed: true,
 };
 
 class PivotTable extends Component {
@@ -27,7 +14,8 @@ class PivotTable extends Component {
         super(props)
         this.state = {
             antTree: [],
-            columns: columns
+            columns: [],
+            dimWidth: 200
         }
     }
     componentWillReceiveProps (nextProps) {
@@ -45,41 +33,41 @@ class PivotTable extends Component {
         console.log('agg fisish')
         let tree = transTree(this.dataset.tree)
         console.log('trans finish')
-        let newColumns = Measures.map((mea) => {
-            return {
-                title: mea,
-                dataIndex: mea,
-                key: mea
-              }
-        })
         this.setState({
             // antTree: [...tree[0]._children],
-            antTree: tree,
-            columns: columns.concat(newColumns)
+            antTree: tree
         })
 
     }
     dfsRender = (record) => {
         const { Measures, Dimensions } = this.props
         if (record._children && record._children.length > 0) {
-            let dimCode = Dimensions[record._children[0]._level]
+            let dimCode = Dimensions[record._children[0]._level - 1]
+            let fixedWidth = (record._children[0]._level) * 67
             let cols = [{
                 title: dimCode,
                 dataIndex: 'dimension',
-                key: 'dimension'
+                key: 'dimension',
+                width: 200 + Dimensions.length * 67 - fixedWidth
             }]
+            // 200 - (record._children[0]._level) * 82
             console.log('dimCode', dimCode)
             cols = cols.concat(Measures.map((mea) => {
                 return {
                     title: mea,
                     dataIndex: mea,
-                    key: mea
+                    key: mea,
+                    width: 200
                   }
             }))
+            cols[cols.length - 1].width = 200 + Dimensions.length * 17 - 17 * (record._children[0]._level)
             return (
                 <Table
                   columns={cols}
                   dataSource={record._children}
+                  indentSize={0}
+                  showHeader={false}
+                  scroll={{x: 20}}
                   expandedRowRender={this.dfsRender}
                   pagination={{
                     defaultPageSize: 20,
@@ -89,21 +77,43 @@ class PivotTable extends Component {
               )
         }
     }
-
+    // expandHandler = (expandedRows) => {
+    //     console.log(expandedRows)
+    //     this.records
+    //     console.log(this.refs.test.expandedRowKeys)
+    // }
     render () {
-        const { Measures } = this.props
+        const { Measures, Dimensions } = this.props
+        let columns = [{
+            title: 'Dimension',
+            dataIndex: 'dimension',
+            key: 'dimension',
+            width: Dimensions.length * 67 + 200
+          }];
+        let newColumns = columns.concat(Measures.map((mea) => {
+            return {
+                title: mea,
+                dataIndex: mea,
+                key: mea,
+                width: 200
+              }
+        }))
+        newColumns[newColumns.length - 1].width = 200 + Dimensions.length * 17
         console.log(this.state.antTree)
         return (<Table 
             pagination={{
                 defaultPageSize: 50,
                 hideOnSinglePage: true
             }}
+            indentSize={0}
             expandedRowRender={this.dfsRender}
-            columns={this.state.columns} 
-            rowSelection={rowSelection}
-            scroll={{x: Measures.length * 200}}
+            columns={newColumns}
+            scroll={{x: (Measures.length + 1) * 200 + 50}}
             dataSource={this.state.antTree} />)
     }
 }
 
 export default PivotTable;
+// <DimensionTree ref="test" antTree={this.state.antTree} Measures={Measures} Dimensions={Dimensions} expandHandler={this.expandHandler} />
+
+//                     <MeasureTable measureData={measureData} Measures={Measures} Dimensions={Dimensions}/>
