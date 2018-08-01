@@ -19,6 +19,9 @@
     "babel-plugin-import": "^1.8.0",
     "eslint": "^5.2.0",
     "fetch": "^1.1.0",
-    "react-app-rewired": "^1.5.2"
+    "react-app-rewired": "^1.5.2",
+    "react-redux": "^5.0.7",
+    "redux": "^4.0.0",
+    "redux-devtools": "^3.4.1"
   }
 }
