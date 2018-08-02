@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Table } from 'antd';
-import { DataSet } from './utils/dataset.js'
-import { transTree } from './utils/antTree.js'
+import { DataSet } from './utils/dataset.1.js'
+import { transTree } from './utils/antTree.1.js'
 import { adjustTable, BASE_WIDTH } from './ui/adjustTable.js'
 
 class PivotTable extends Component {
@@ -21,13 +21,18 @@ class PivotTable extends Component {
             MEASURES: Measures,
             aggFunc: aggFunc
         })
-
+        let t = (new Date()).getTime(), t1;
         this.dataset.buildTree()
-        console.log('[build tree]: Done!')
+        t1 = (new Date()).getTime()
+        console.log('[build tree]: Done!', t1 - t)
+        t = (new Date()).getTime()
         this.dataset.aggTree()
-        console.log('[aggregate tree]: Done!')
+        t1 = (new Date()).getTime()
+        console.log('[aggregate tree]: Done!', t1 - t)
+        t = (new Date()).getTime()
         let tree = transTree(this.dataset.tree)
-        console.log('[transfer tree into Ant]: Done!')
+        t1 = (new Date()).getTime()
+        console.log('[transfer tree into Ant]: Done!', t1 - t)
         this.setState({
             antTree: tree
         })

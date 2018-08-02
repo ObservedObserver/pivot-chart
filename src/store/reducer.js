@@ -75,6 +75,7 @@ const reducerCenter = {
         // newState.dataConfig.Measures.push('MeasureValue')
         // newState.dataConfig.Dimensions.push('MeasureType')
         newState.dataSource = dataSource
+        console.log('data rows', newState.dataSource.length)
         return newState
     }
 }

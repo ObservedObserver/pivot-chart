@@ -6,19 +6,19 @@ import store from './store/index.js'
 class App extends Component {
   constructor () {
     super()
-    this.state = {
-      dataSource: [],
-      dataConfig: {}
-    }
-    let self = this
-    store.subscribe(() => {
-      let state = store.getState()
-      console.log('state update', state)
-      self.setState({
-        dataSource: state.dataSource,
-        dataConfig: state.dataConfig
-      })
-    })
+    // this.state = {
+    //   dataSource: [],
+    //   dataConfig: {}
+    // }
+    // let self = this
+    // store.subscribe(() => {
+    //   let state = store.getState()
+    //   console.log('state update', state)
+    //   self.setState({
+    //     dataSource: state.dataSource,
+    //     dataConfig: state.dataConfig
+    //   })
+    // })
   }
   componentDidMount () {
     store.dispatch({
@@ -30,7 +30,7 @@ class App extends Component {
   }
   render() {
     return (
-      <Sheet dataSource={this.state.dataSource} dataConfig={this.state.dataConfig}  />
+      <Sheet  />
     );
   }
 }

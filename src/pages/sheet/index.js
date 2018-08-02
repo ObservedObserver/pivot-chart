@@ -1,20 +1,27 @@
 import React, { Component } from 'react'
-import { Layout, Menu, Icon, List, Tag } from 'antd';
+import { Layout, Menu, Icon, List, Tag, Steps } from 'antd';
 import PivotTable from '../../components/pivot/index.js'
 import DemoChart from '../../components/charts/demochart.js'
 import store from '../../store/index.js'
 import './style/index.css'
+
 const { Header, Content, Sider } = Layout;
+const Step = Steps.Step
 function avg (subset, MEASURES) {
     let sums = {}
     MEASURES.forEach((mea) => {
       sums[mea] = 0
     })
-    subset.forEach((record) => {
-      MEASURES.forEach((mea) => {
-        sums[mea] += (Number(record[mea]) || 0)
-      })
-    })
+    // subset.forEach((record) => {
+    //   MEASURES.forEach((mea) => {
+    //     sums[mea] += (Number(record[mea]) || 0)
+    //   })
+    // })
+    for (let i = 0, len = subset.length; i < len; i++) {
+        MEASURES.forEach((mea) => {
+            sums[mea] += (Number(subset[i][mea]) || 0)
+          })
+    }
     MEASURES.forEach((mea) => {
       sums[mea] = (sums[mea] / subset.length).toFixed(2)
     })
@@ -43,12 +50,20 @@ class Sheet extends Component {
             Measures: [],
             Color: [],
             content: 'table',
-            chartType: 'bar'
+            chartType: 'bar',
+            dataSource: [],
+            dataConfig: {}
         }
         let self = this
         store.subscribe(() => {
             let state = store.getState()
-            self.setState(state.sheet)
+            if (state.sheet !== self.state) {
+                self.setState({
+                    ...state.sheet,
+                    dataSource: state.dataSource,
+                    dataConfig: state.dataConfig
+                })
+            }
         })
 
     }
@@ -66,7 +81,7 @@ class Sheet extends Component {
         console.log('drop', field)
         ev.stopPropagation()
         if (field === 'Dimensions' || field === 'Measures' || field === 'Color') {
-            const { Dimensions } = this.props.dataConfig
+            const { Dimensions } = this.state.dataConfig
             if (field === 'Color') {
                 store.dispatch({
                     type: 'addLabel',
@@ -115,9 +130,7 @@ class Sheet extends Component {
         // console.log(item, store.getState())
     }
     renderView () {
-        let {Dimensions, Measures, content, chartType, Color} = this.state
-        let {dataSource} = this.props
-        console.log('currnet state', this.state)
+        let {Dimensions, Measures, content, chartType, Color, dataSource} = this.state
         if (content === 'table') {
             return (<PivotTable
                 height={720}
@@ -137,8 +150,9 @@ class Sheet extends Component {
                  />)
         }
     }
+
     render () {
-        const { dataConfig } = this.props
+        const { dataConfig } = this.state
         const { Dimensions, Measures } = dataConfig
         let selectedDim = this.state.Dimensions.map(dim => {
             return (<Tag draggable="true" color="#f50" key={dim} onDragStart={this.dragStart.bind(this, 'Dimensions', dim)}>{dim}</Tag>)
@@ -210,7 +224,7 @@ class Sheet extends Component {
                             renderItem={item => (<List.Item key={item} onDrop={this.dragDrop.bind(this, item)} onDragOver={this.allowDrag}>{item}: {selectedLabel[item]}</List.Item>)}
                         />
                         <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280, overflow: 'auto' }}>
-
+                                    
                             {this.renderView()}
 
                         </Content>
@@ -221,20 +235,4 @@ class Sheet extends Component {
     }
 }
 
-
-// <PivotTable 
-//                     height={720}
-//                     size={'middle'}
-//                     aggFunc={avg}
-//                     dataSource={this.props.dataSource}
-//                     Dimensions={this.state.Dimensions} 
-//                     Measures={this.state.Measures} />
-
-
-// <DemoChart
-//                     height={700}
-//                     dataSource={dataSource}
-//                     dimCodes={this.state.Dimensions}
-//                     indCodes={this.state.Measures}
-//                      />
 export default Sheet;

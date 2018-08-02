@@ -1,6 +1,6 @@
 class Node {
     constructor (aggFunc) {
-        this.children = {}
+        this.children = new Map()
         this.rawData = []
         this.aggFunc = aggFunc
     }
@@ -28,9 +28,13 @@ class DataSet {
 
     buildTree () {
         let tree = new Node(this.aggFunc)
-        this.FACT_TABLE.forEach(record => {
-            this.insertNode(record, tree, 0)
-        })
+        let len = this.FACT_TABLE.length, i
+        for (i = 0; i < len; i++) {
+            this.insertNode(this.FACT_TABLE[i], tree, 0)
+        }
+        // this.FACT_TABLE.forEach(record => {
+        //     this.insertNode(record, tree, 0)
+        // })
         this.tree = tree
         return tree
     }
@@ -41,25 +45,26 @@ class DataSet {
             node.push(record)
         } else {
             let member = record[this.DIMENSIONS[level]]
-            if (typeof node.children[member] === 'undefined') {
-            node.children[member] = new Node(this.aggFunc)
+            if (!node.children.has(member)) {
+                node.children.set(member, new Node(this.aggFunc))
             }
-            this.insertNode(record, node.children[member], level + 1)
+            // if (typeof node.children[member] === 'undefined') {
+            //     node.children[member] = new Node(this.aggFunc)
+            // }
+            this.insertNode(record, node.children.get(member), level + 1)
         }
     }
     
     aggTree (node = this.tree) {
         // leaf has no child
-        for (let child in node.children) {
-            // node.rawData = node.rawData.concat(this.aggTree(node.children[child]).rawData)
-            let i, data = this.aggTree(node.children[child]).rawData;
+        let children = node.children.values()
+        for (let child of children) {
+            let i, data = this.aggTree(child).rawData;
             let len = data.length;
             for (i = 0; i < len; i++) {
                 node.rawData.push(data[i])
             }
             data = null;
-
-            // node.rawData.push(...this.aggTree(node.children[child]).rawData)
         }
         node.aggData(this.MEASURES)
         return node
