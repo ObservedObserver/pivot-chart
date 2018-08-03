@@ -14,29 +14,7 @@ class PivotTable extends Component {
         }
     }
     componentWillReceiveProps (nextProps) {
-        const { dataSource, aggFunc, Dimensions, Measures } = nextProps
-        this.dataset = new DataSet({
-            FACT_TABLE: dataSource,
-            DIMENSIONS: Dimensions,
-            MEASURES: Measures,
-            aggFunc: aggFunc
-        })
-        let t = (new Date()).getTime(), t1;
-        this.dataset.buildTree()
-        t1 = (new Date()).getTime()
-        console.log('[build tree]: Done!', t1 - t)
-        t = (new Date()).getTime()
-        this.dataset.aggTree()
-        t1 = (new Date()).getTime()
-        console.log('[aggregate tree]: Done!', t1 - t)
-        t = (new Date()).getTime()
-        let tree = transTree(this.dataset.tree)
-        t1 = (new Date()).getTime()
-        console.log('[transfer tree into Ant]: Done!', t1 - t)
-        this.setState({
-            antTree: tree
-        })
-
+        this.generateCube(nextProps)
     }
     dfsRender = (record) => {
         const { Measures, Dimensions, size } = this.props
@@ -78,11 +56,33 @@ class PivotTable extends Component {
         }
         return null
     }
-    // expandHandler = (expandedRows) => {
-    //     console.log(expandedRows)
-    //     this.records
-    //     console.log(this.refs.test.expandedRowKeys)
-    // }
+    generateCube (nextProps) {
+        const { dataSource, aggFunc, Dimensions, Measures } = nextProps || this.props
+        this.dataset = new DataSet({
+            FACT_TABLE: dataSource,
+            DIMENSIONS: Dimensions,
+            MEASURES: Measures,
+            aggFunc: aggFunc
+        })
+        let t = (new Date()).getTime(), t1;
+        this.dataset.buildTree()
+        t1 = (new Date()).getTime()
+        console.log('[build tree]: Done!', t1 - t)
+        t = (new Date()).getTime()
+        this.dataset.aggTree()
+        t1 = (new Date()).getTime()
+        console.log('[aggregate tree]: Done!', t1 - t)
+        t = (new Date()).getTime()
+        let tree = transTree(this.dataset.tree)
+        t1 = (new Date()).getTime()
+        console.log('[transfer tree into Ant]: Done!', t1 - t)
+        this.setState({
+            antTree: tree
+        })
+    }
+    componentWillMount () {
+        this.generateCube()
+    }
     render () {
         const { Measures, Dimensions, size, height } = this.props
         let { left, right } = adjustTable(size)
