@@ -1,12 +1,14 @@
 import React, { Component } from 'react'
-import { Layout, Menu, Icon, List, Tag, Steps } from 'antd';
+import { Layout, Menu, Icon, List, Tag } from 'antd';
 import PivotTable from '../../components/pivot/index.js'
-import DemoChart from '../../components/charts/demochart.js'
 import store from '../../store/index.js'
 import './style/index.css'
-
+import PivotTableP from '../../components/pivot/table2d.js'
 const { Header, Content, Sider } = Layout;
-const Step = Steps.Step
+const labelColor = {
+    'Dimensions': '#fa541c',
+    'Measures': '#13c2c2'
+}
 function avg (subset, MEASURES) {
     let sums = {}
     MEASURES.forEach((mea) => {
@@ -33,12 +35,8 @@ const viewTypes = [
         icon: 'table'
     },
     {
-        title: 'bar',
+        title: 'table2d',
         icon: 'bar-chart'
-    },
-    {
-        title: 'line',
-        icon: 'line-chart'
     }
 ]
 class Sheet extends Component {
@@ -48,6 +46,8 @@ class Sheet extends Component {
         this.state = {
             Dimensions: [],
             Measures: [],
+            Rows: [],
+            Columns: [],
             Color: [],
             content: 'table',
             chartType: 'bar',
@@ -67,11 +67,13 @@ class Sheet extends Component {
         })
 
     }
-    dragStart (field, item, ev) {
+    dragStart (name, type, field) {
         this.currentLabel = {
-            name: item,
-            type: field
+            name: name,
+            type: type,
+            field: field
         }
+        console.log(this.currentLabel)
     }
     allowDrag = (ev) => {
         ev.preventDefault()
@@ -80,94 +82,67 @@ class Sheet extends Component {
     dragDrop (field, ev)  {
         console.log('drop', field)
         ev.stopPropagation()
-        if (field === 'Dimensions' || field === 'Measures' || field === 'Color') {
+        if (typeof this.currentLabel.field !== 'undefined') {
+            store.dispatch({
+                type: 'removeLabel',
+                params: this.currentLabel
+            })
+        } 
+        if (field) {
             const { Dimensions } = this.state.dataConfig
-            if (field === 'Color') {
-                store.dispatch({
-                    type: 'addLabel',
-                    params: {
-                        name: this.currentLabel.name,
-                        type: 'Color'
-                    }
-                })
-            } else if (!(field === 'Measures' && Dimensions.indexOf(this.currentLabel.name) > -1)) {
+            if (!(field === 'Measures' && Dimensions.indexOf(this.currentLabel.name) > -1)) {
+                this.currentLabel.field = field
                 store.dispatch({
                     type: 'addLabel',
                     params: this.currentLabel
                 })
             }
-        } else {
-            store.dispatch({
-                type: 'removeLabel',
-                params: this.currentLabel
-            })
         }
         this.currentLabel = {}
     }
 
     changeViewType (item) {
-        if (item === 'table') {
-            store.dispatch({
-                type: 'setContent',
-                params: {
-                    content: 'table'
-                }
-            })
-        } else {
-            store.dispatch({
-                type: 'setContent',
-                params: {
-                    content: 'chart'
-                }
-            })
-            store.dispatch({
-                type: 'setChartType',
-                params: {
-                    chartType: item
-                }
-            })
-        }
+        store.dispatch({
+            type: 'setContent',
+            params: {
+                content: item
+            }
+        })
         // console.log(item, store.getState())
     }
     renderView () {
-        let {Dimensions, Measures, content, chartType, Color, dataSource} = this.state
+        let {Measures, content, dataSource, Rows, Columns} = this.state
+        let Dimensions = Rows.concat(Columns)
         if (content === 'table') {
             return (<PivotTable
                 height={720}
                 size={'middle'}
                 aggFunc={avg}
                 dataSource={dataSource}
-                Dimensions={Dimensions}
-                Measures={Measures} />)
+                Dimensions={Dimensions.map(item => item.name)}
+                Measures={Measures.map(item => item.name)} />)
         } else {
-            return (<DemoChart
-                height={700}
-                dataSource={dataSource}
-                chartType={chartType}
-                dimCodes={Dimensions}
-                indCodes={Measures}
-                color={Color}
-                 />)
+            return (<PivotTableP height={720}
+                        size={'middle'}
+                        aggFunc={avg}
+                        dataSource={dataSource}
+                        Rows={Rows.map(item => item.name)}
+                        Columns={Columns.map(item => item.name)}
+                        Measures={Measures.map(item => item.name)} />)
         }
     }
 
     render () {
         const { dataConfig } = this.state
         const { Dimensions, Measures } = dataConfig
-        let selectedDim = this.state.Dimensions.map(dim => {
-            return (<Tag draggable="true" color="#f50" key={dim} onDragStart={this.dragStart.bind(this, 'Dimensions', dim)}>{dim}</Tag>)
+        let selectedLabel = {}
+        const fields = ['Dimensions', 'Color', 'Measures', 'Columns', 'Rows']
+        fields.forEach((field) => {
+            selectedLabel[field] = this.state[field].map((item) => {
+                return (<Tag draggable="true" color={labelColor[item.type]} key={item.name} onDragStart={this.dragStart.bind(this, item.name, item.type, field)}>{item.name}</Tag>)
+            })
         })
-        let selectedMea = this.state.Measures.map(mea => {
-            return (<Tag draggable="true" color="#87d068" key={mea} onDragStart={this.dragStart.bind(this, 'Measures', mea)}>{mea}</Tag>)
-        })
-        let selectedColor = this.state.Color.map(mea => {
-            return (<Tag draggable="true" color="#87d" key={mea} onDragStart={this.dragStart.bind(this, 'Color', mea)}>{mea}</Tag>)
-        })
-        let selectedLabel = {
-            Dimensions: selectedDim,
-            Measures: selectedMea,
-            Color: selectedColor
-        }
+        
         console.log('render')
         return (
             <Layout className="sheet" onDrop={this.dragDrop.bind(this, undefined)} onDragOver={this.allowDrag}>
@@ -188,13 +163,13 @@ class Sheet extends Component {
                         <List className="sheet-list-container"
                             size="small"
                             dataSource={Dimensions}
-                            renderItem={item => (<List.Item onDragStart={this.dragStart.bind(this, 'Dimensions', item)} draggable="true">{item}</List.Item>)}
+                            renderItem={item => (<List.Item onDragStart={this.dragStart.bind(this, item, 'Dimensions', undefined)} draggable="true">{item}</List.Item>)}
                         />
                         <h3 style={{ margin: '16px 0' }}>Measures</h3>
                         <List className="sheet-list-container"
                             size="small"
                             dataSource={Measures}
-                            renderItem={item => (<List.Item onDragStart={this.dragStart.bind(this, 'Measures', item)} draggable="true">{item}</List.Item>)}
+                            renderItem={item => (<List.Item onDragStart={this.dragStart.bind(this, item, 'Measures', undefined)} draggable="true">{item}</List.Item>)}
                         />
                     </Sider>
                     <Sider width={220} className="sheet-sider">
@@ -220,7 +195,7 @@ class Sheet extends Component {
                         <List className="sheet-selector"
                             size="large"
                             bordered
-                            dataSource={['Dimensions', 'Measures']}
+                            dataSource={['Rows', 'Columns', 'Measures']}
                             renderItem={item => (<List.Item key={item} onDrop={this.dragDrop.bind(this, item)} onDragOver={this.allowDrag}>{item}: {selectedLabel[item]}</List.Item>)}
                         />
                         <Content style={{ background: '#fff', padding: 24, margin: 0, minHeight: 280, overflow: 'auto' }}>

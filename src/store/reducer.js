@@ -10,6 +10,8 @@ const defaultState = {
     sheet: {
         Dimensions: [],
         Measures: [],
+        Rows: [],
+        Columns: [],
         Color: [],
         content: 'table',
         chartType: 'bar'
@@ -38,19 +40,19 @@ const reducerCenter = {
         return newState
     },
     addLabel (state, action) {
-        const { type, name } = action.params
+        const { name, field } = action.params
         let newState = { ...state }
-        if (newState.sheet[type].indexOf(name) > -1) {
+        if (newState.sheet[field].indexOf(name) > -1) {
             this.removeLabel(state, action)
         }
-        newState.sheet[type].push(name)
+        newState.sheet[field].push(action.params)
         return newState
     },
     removeLabel (state, action) {
-        const { type, name } = action.params
+        const { name, field } = action.params
         let newState = { ...state }
-        let index = state.sheet[type].indexOf(name)
-        newState.sheet[type].splice(index, 1)
+        let index = state.sheet[field].indexOf(name)
+        newState.sheet[field].splice(index, 1)
         return newState
     },
     requestServerData (state, action) {
