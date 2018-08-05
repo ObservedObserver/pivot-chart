@@ -3,7 +3,7 @@ import { Table } from 'antd';
 import { DataSet } from './utils/dataset.1.js'
 import { transTree } from './utils/antTree.1.js'
 import { adjustTable, BASE_WIDTH } from './ui/adjustTable.js'
-
+import './index.css'
 class PivotTable extends Component {
     constructor (props) {
         super(props)
@@ -26,14 +26,16 @@ class PivotTable extends Component {
                 title: dimCode,
                 dataIndex: 'dimension',
                 key: 'dimension',
-                width: BASE_WIDTH + Dimensions.length * left - left * level
+                width: BASE_WIDTH + Dimensions.length * left - left * level,
+                sorter: true
             }]
             cols = cols.concat(Measures.map((mea) => {
                 return {
                     title: mea,
                     dataIndex: mea,
                     key: mea,
-                    width: BASE_WIDTH
+                    width: BASE_WIDTH,
+                    sorter: (a, b) => Number(a[mea]) - Number(b[mea])
                   }
             }))
             cols[cols.length - 1].width = BASE_WIDTH + Dimensions.length * right - right * level
@@ -53,8 +55,31 @@ class PivotTable extends Component {
                 }}
                 />
               )
+        } else if (record && record._rawData.length > 0) {
+            let keys = Object.keys(record._rawData[0])
+            let cols = keys.map((key) => {
+                return {
+                    title: key,
+                    dataIndex: key,
+                    key: key
+                    // sorter: true
+                  }
+            })
+            return (
+                <Table className="hiden-table"
+                  columns={cols}
+                  rowKey={(record, index) => index}
+                  dataSource={record._rawData}
+                  indentSize={0}
+                  size={size}
+                  showHeader={true}
+                  pagination={{
+                    defaultPageSize: 10,
+                    hideOnSinglePage: true
+                }}
+                />
+              )
         }
-        return null
     }
     generateCube (nextProps) {
         const { dataSource, aggFunc, Dimensions, Measures } = nextProps || this.props
@@ -92,14 +117,16 @@ class PivotTable extends Component {
             title: 'Dimension',
             dataIndex: 'dimension',
             key: 'dimension',
-            width: Dimensions.length * left + BASE_WIDTH
+            width: Dimensions.length * left + BASE_WIDTH,
+            sorter: true
         }];
         let newColumns = columns.concat(Measures.map((mea) => {
             return {
                 title: mea,
                 dataIndex: mea,
                 key: mea,
-                width: BASE_WIDTH
+                width: BASE_WIDTH,
+                // sorter: (a, b) => Number(a[mea]) - Number(b[mea])
               }
         }))
         newColumns[newColumns.length - 1].width = BASE_WIDTH + Dimensions.length * right

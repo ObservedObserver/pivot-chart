@@ -1,34 +1,17 @@
 import React, { Component } from 'react'
-import { Layout, Menu, Icon, List, Tag } from 'antd';
+import { Layout, Menu, Icon, List, Tag, Select } from 'antd';
 import PivotTable from '../../components/pivot/index.js'
 import store from '../../store/index.js'
 import './style/index.css'
+import statFunc from './stat.js'
 import PivotTableP from '../../components/pivot/table2d.js'
 const { Header, Content, Sider } = Layout;
+const { Option } = Select
 const labelColor = {
     'Dimensions': '#fa541c',
     'Measures': '#13c2c2'
 }
-function avg (subset, MEASURES) {
-    let sums = {}
-    MEASURES.forEach((mea) => {
-      sums[mea] = 0
-    })
-    // subset.forEach((record) => {
-    //   MEASURES.forEach((mea) => {
-    //     sums[mea] += (Number(record[mea]) || 0)
-    //   })
-    // })
-    for (let i = 0, len = subset.length; i < len; i++) {
-        MEASURES.forEach((mea) => {
-            sums[mea] += (Number(subset[i][mea]) || 0)
-          })
-    }
-    MEASURES.forEach((mea) => {
-      sums[mea] = (sums[mea] / subset.length).toFixed(2)
-    })
-    return sums
-  }
+
 const viewTypes = [
     {
         title: 'table',
@@ -36,7 +19,7 @@ const viewTypes = [
     },
     {
         title: 'table2d',
-        icon: 'bar-chart'
+        icon: 'layout'
     }
 ]
 class Sheet extends Component {
@@ -52,7 +35,8 @@ class Sheet extends Component {
             content: 'table',
             chartType: 'bar',
             dataSource: [],
-            dataConfig: {}
+            dataConfig: {},
+            aggFunc: Object.keys(statFunc)[0]
         }
         let self = this
         store.subscribe(() => {
@@ -100,7 +84,11 @@ class Sheet extends Component {
         }
         this.currentLabel = {}
     }
-
+    changeAggFunc = (value) => {
+        this.setState({
+            aggFunc: value
+        })
+    }
     changeViewType (item) {
         store.dispatch({
             type: 'setContent',
@@ -112,19 +100,20 @@ class Sheet extends Component {
     }
     renderView () {
         let {Measures, content, dataSource, Rows, Columns} = this.state
+        let aggFunc = statFunc[this.state.aggFunc]
         let Dimensions = Rows.concat(Columns)
         if (content === 'table') {
             return (<PivotTable
                 height={720}
                 size={'middle'}
-                aggFunc={avg}
+                aggFunc={aggFunc}
                 dataSource={dataSource}
                 Dimensions={Dimensions.map(item => item.name)}
                 Measures={Measures.map(item => item.name)} />)
         } else {
             return (<PivotTableP height={720}
                         size={'middle'}
-                        aggFunc={avg}
+                        aggFunc={aggFunc}
                         dataSource={dataSource}
                         Rows={Rows.map(item => item.name)}
                         Columns={Columns.map(item => item.name)}
@@ -174,6 +163,13 @@ class Sheet extends Component {
                     </Sider>
                     <Sider width={220} className="sheet-sider">
                         <h3 style={{ marginBottom: 16 }}>View</h3>
+                        <Select defaultValue={this.state.aggFunc} style={{ width: 120 }} onChange={this.changeAggFunc}>
+                            {
+                                Object.keys(statFunc).map((key) => {
+                                    return <Option value={key} key={key}>{key}</Option>
+                                })
+                            }
+                        </Select>
                         <List
                             grid={{ gutter: 16, xs: 1, sm: 2, md: 3, lg: 3, xl: 3, xxl: 2 }}
                             dataSource={viewTypes}
@@ -182,12 +178,6 @@ class Sheet extends Component {
                                     <Icon type={item.icon} style={{ fontSize: 36, color: '#91d5ff' }} />
                                 </List.Item>
                             )}
-                        />
-                        <List className="sheet-selector"
-                            size="large"
-                            bordered
-                            dataSource={['Color']}
-                            renderItem={item => (<List.Item key={item} onDrop={this.dragDrop.bind(this, item)} onDragOver={this.allowDrag}>{item}: {selectedLabel[item]}</List.Item>)}
                         />
                     </Sider>
 

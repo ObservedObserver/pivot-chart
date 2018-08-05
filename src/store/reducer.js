@@ -42,7 +42,7 @@ const reducerCenter = {
     addLabel (state, action) {
         const { name, field } = action.params
         let newState = { ...state }
-        if (newState.sheet[field].indexOf(name) > -1) {
+        if (state.sheet[field].map(item => item.name).indexOf(name) > -1) {
             this.removeLabel(state, action)
         }
         newState.sheet[field].push(action.params)
@@ -51,7 +51,7 @@ const reducerCenter = {
     removeLabel (state, action) {
         const { name, field } = action.params
         let newState = { ...state }
-        let index = state.sheet[field].indexOf(name)
+        let index = state.sheet[field].map(item => item.name).indexOf(name)
         newState.sheet[field].splice(index, 1)
         return newState
     },

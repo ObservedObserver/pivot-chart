@@ -22,6 +22,7 @@ function transTree (dataTree) {
         for (let measure in aggData) {
             antNode[measure] = aggData[measure]
         }
+        antNode._rawData = node.rawData
         if (antNode._children.length === 0) {
             antNode._children = undefined
         }
