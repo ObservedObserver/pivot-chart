@@ -11,6 +11,7 @@
     padding-left: 1.8rem;
     padding-right: 1.8rem;
     background: #fff;
+    border-right: 2px solid #f5f5f5;
 }
 .sheet-list-container{
     height: 20rem;
@@ -20,4 +21,7 @@
     margin-top: 0.4rem;
     margin-bottom: 0.4rem;
     background: #fff;
+}
+.ant-list-item{
+    overflow-x: auto
 }
