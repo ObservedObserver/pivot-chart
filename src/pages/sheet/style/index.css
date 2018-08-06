@@ -22,3 +22,6 @@
     margin-bottom: 0.4rem;
     background: #fff;
 }
+.ant-list-item{
+    overflow-x: auto
+}
