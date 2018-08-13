@@ -24,7 +24,7 @@ class Sheet extends Component {
         console.log('render')
         return (
             <Layout className="sheet" 
-            //onDrop={this.dragDrop.bind(this, undefined)} 
+            onDrop={this.props.dragDrop.bind(this, undefined)} 
             onDragOver={(ev) => {ev.preventDefault()}}>
                 <Header className="header">
                     <div className="logo" />
@@ -73,6 +73,18 @@ const mapDispatchToProps = (dispatch) => {
                     dispatch: dispatch
                 }
             })
+        },
+        dragDrop (field) {
+            console.log('drop field', field)
+            dispatch({
+                type: 'editSelector',
+                params: {
+                    name: window.currentLabel.name,
+                    type: window.currentLabel.type,
+                    field: field
+                }
+            })
+            window.currentLabel = {}
         }
     }
 }

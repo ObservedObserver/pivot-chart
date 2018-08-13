@@ -2,6 +2,7 @@
   "name": "pivot-table",
   "version": "0.1.0",
   "private": true,
+  "main": "./src/components/pivot/index.js",
   "dependencies": {
     "antd": "^3.7.3",
     "react": "^16.4.1",

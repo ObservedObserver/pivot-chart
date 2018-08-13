@@ -17,10 +17,10 @@ const mapDispatchToProps = (dispatch) => {
                 type: type,
                 field: field
             }
-            dispatch({
-                type: 'editSelector',
-                params: window.currentLabel
-            })
+            // dispatch({
+            //     type: 'editSelector',
+            //     params: window.currentLabel
+            // })
         }
     }
 }

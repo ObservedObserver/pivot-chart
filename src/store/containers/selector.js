@@ -14,11 +14,11 @@ const mapDispatchToProps = (dispatch) => {
                 type: type,
                 field: field
             }
-            dispatch({
-                type: 'editSelector',
-                params: window.currentLabel
+            // dispatch({
+            //     type: 'editSelector',
+            //     params: window.currentLabel
 
-            })
+            // })
         },
     
         dragDrop (field)  {
@@ -29,11 +29,17 @@ const mapDispatchToProps = (dispatch) => {
             //         params: this.currentLabel
             //     })
             // } 
-            window.currentLabel.field = field
+            // window.currentLabel.field = field
+            console.log('drop field', field)
             dispatch({
                 type: 'editSelector',
-                params: window.currentLabel
+                params: {
+                    name: window.currentLabel.name,
+                    type: window.currentLabel.type,
+                    field: field
+                }
             })
+            window.currentLabel = {}
             // if (field) {
             //     const { Dimensions } = this.state.dataConfig
             //     if (!(field === 'Measures' && Dimensions.indexOf(this.currentLabel.name) > -1)) {

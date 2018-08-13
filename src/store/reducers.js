@@ -21,15 +21,31 @@ const defaultState = {
 }
 function selector (oldSelector = defaultState.selector, action) {
     if (action.type !== 'editSelector') {return oldSelector}
+    // if (action.type === '')
     console.log('selector', action)
-    const { field, name, type } = action.params || {}
-    if (typeof field === 'undefined') {return oldSelector}
+    let { field, name, type } = action.params || {}
     let newSelector = {...oldSelector}
-    let pos = newSelector[field].map(item => item.name).indexOf(window.currentLabel.name)
-    if (pos >= 0) {
-        newSelector[field].splice(pos, 1)
+    if (typeof field === 'undefined') {
+        if (typeof window.currentLabel.field !== 'undefined') {
+            field = window.currentLabel.field
+            let pos = newSelector[field].map(item => item.name).indexOf(window.currentLabel.name)
+            if (pos >= 0) {
+                newSelector[field].splice(pos, 1)
+            }
+        }
+    } else {
+        if (typeof window.currentLabel.field !== 'undefined') {
+            let pos = newSelector[window.currentLabel.field].map(item => item.name).indexOf(window.currentLabel.name)
+            if (pos >= 0) {
+                newSelector[window.currentLabel.field].splice(pos, 1)
+            }
+        }
+        let pos = newSelector[field].map(item => item.name).indexOf(window.currentLabel.name)
+        if (pos >= 0) {
+            newSelector[field].splice(pos, 1)
+        }
+        newSelector[field].push(window.currentLabel)
     }
-    newSelector[field].push(window.currentLabel)
     window.currentLabel = {}
     return newSelector
 }

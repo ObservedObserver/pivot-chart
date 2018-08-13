@@ -10,6 +10,10 @@ const viewTypes = [
     {
         title: '2d',
         icon: 'layout'
+    },
+    {
+        title: 'hema',
+        icon: 'frown-o'
     }
 ]
 const Settings = props => {
