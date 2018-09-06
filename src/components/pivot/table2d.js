@@ -26,7 +26,7 @@ const PAGE_SIZE = {
     row: 20,
     col: 8
 }
-class PivotTableP extends Component {
+class PivotTable2D extends Component {
     constructor (props) {
         super(props)
         this.state = {
@@ -178,4 +178,4 @@ class PivotTableP extends Component {
     }
 }
 
-export default PivotTableP;
+export default PivotTable2D;
