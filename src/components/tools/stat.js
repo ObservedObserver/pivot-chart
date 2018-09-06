@@ -88,7 +88,7 @@ function count (subset, MEASURES) {
 }
 const statFunc = {
     MEAN: avg,
-    SUM: sum, 
+    SUM: sum_unsafe, 
     COUNT: count
 }
 export default statFunc

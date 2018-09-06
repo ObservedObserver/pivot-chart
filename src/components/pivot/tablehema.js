@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { Tree, Table, Layout, Row, Col } from 'antd';
 import { DataSet } from './utils/dataset.1.js'
-import { expand } from '../../../node_modules/rxjs/operator/expand';
 
 import './ui/hema.css'
 const { Header, Footer, Sider, Content } = Layout;
