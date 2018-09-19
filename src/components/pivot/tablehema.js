@@ -1,24 +1,8 @@
 import React, { Component } from 'react'
-import { Tree, Table, Layout, Row, Col } from 'antd';
+import { Table, Row, Col } from 'antd';
 import { DataSet } from './utils/dataset.1.js'
 
 import './ui/hema.css'
-const { Header, Footer, Sider, Content } = Layout;
-const TreeNode = Tree.TreeNode;
-// function transTree(node, name) {
-//     if (node.children.size === 0) {
-//         return (<TreeNode title={name} key={name}></TreeNode>)
-//     }
-//     else if (node.children.size > 0) {
-//         let children = node.children.keys()
-//         let subset = []
-//         for (let child of children) {
-//             subset.push(transTree(node.children.get(child), child))
-//         }
-//         return (<TreeNode title={name} key={name}>{subset}</TreeNode>)
-//     }
-
-// }
 
 function transTree (dataTree) {
     let antTree = {
@@ -166,14 +150,3 @@ class PivotTableHema extends Component {
 }
 
 export default PivotTableHema;
-
-// <Tree ref="root"
-//                             // defaultExpandedKeys={['0-0-0', '0-0-1']}
-//                             // defaultSelectedKeys={['0-0-0', '0-0-1']}
-//                             // defaultCheckedKeys={['0-0-0', '0-0-1']}
-//                             onSelect={this.onSelect}
-//                             onCheck={this.onCheck}
-//                             onExpand={this.onExpand}
-//                         >
-//                             {transTree(this.dataset.tree, 'root')}
-//                         </Tree>
