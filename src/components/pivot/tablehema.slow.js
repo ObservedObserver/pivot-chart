@@ -134,11 +134,7 @@ class PivotTableHema extends Component {
             <div className="pivot-hema">
                 <Row>
                     <Col span={24} style={{overflowX: 'auto'}}>
-                    <Table 
-                    pagination={{
-                        pageSize: 20,
-                        hideOnSinglePage: true
-                    }}
+                    <Table
                     scroll={{ x: this.props.Measures.length * 160 +  dimLen * 40 + 200}}
                     onExpandedRowsChange = {this.onExpandedRowsChange}
                     dataSource={dimTree} columns={dimColumn.concat(columns)}  size={'middle'} pagination={false}></Table>

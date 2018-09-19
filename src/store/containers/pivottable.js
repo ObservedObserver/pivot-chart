@@ -34,6 +34,16 @@ const getPivotTable = (state, tableType) => {
                 Dimensions: state.selector.Rows.concat(state.selector.Columns).map(item => item.name),
                 Measures: state.selector.Measures.map(item => item.name)
             }
+        default:
+            return {
+                tableType,
+                height: 720,
+                size: 'middle',
+                aggFunc: statFunc[state.settings.aggFunc],
+                dataSource: state.config.dataSource,
+                Dimensions: state.selector.Rows.concat(state.selector.Columns).map(item => item.name),
+                Measures: state.selector.Measures.map(item => item.name)
+            }
     }
 }
 

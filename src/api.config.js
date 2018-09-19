@@ -1,4 +1,4 @@
-const HOST = '127.0.0.1'
+const HOST = 'ooer.space'
 const PORT = '2018'
 const API = 'api/data/youtube'
 

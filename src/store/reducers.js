@@ -23,7 +23,7 @@ function selector (oldSelector = defaultState.selector, action) {
     if (action.type !== 'editSelector') {return oldSelector}
     // if (action.type === '')
     console.log('selector', action)
-    let { field, name, type } = action.params || {}
+    let { field } = action.params || {}
     let newSelector = {...oldSelector}
     if (typeof field === 'undefined') {
         if (typeof window.currentLabel.field !== 'undefined') {
@@ -79,6 +79,8 @@ function config (oldConfig = defaultState.config, action) {
                 Dimensions: data.config.Dimensions,
                 Measures: data.config.Measures
             }
+        default:
+            console.log('params wrong')
     }
 }
 function settings (oldSettings= defaultState.settings, action) {
