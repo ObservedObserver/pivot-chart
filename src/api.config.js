@@ -1,6 +1,6 @@
-const HOST = 'ooer.space'
-const PORT = '2018'
-const API = 'api/data/titanic'
+const HOST = 'localhost'
+const PORT = '8000'
+const API = 'api/data/students'
 
 const URL = `http://${HOST}:${PORT}/${API}`
 
