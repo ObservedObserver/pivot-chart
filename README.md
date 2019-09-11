@@ -17,13 +17,9 @@ npm start/yarn start
 ```
 
 ## Demo
-set your own data service in `api.config.js`
 ```js
-const HOST = '127.0.0.1'
-const PORT = '2018'
-const API = 'api/data/titanic'
+npm run server
 
-const URL = `http://${HOST}:${PORT}/${API}`
-
-export default URL;
+// in a new terminal.
+npm start
 ```

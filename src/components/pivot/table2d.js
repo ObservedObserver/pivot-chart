@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Row, Col, Button, Icon } from 'antd';
-import { DataSet } from './utils/dataset.1.js'
+import { createCube } from 'cube-core';
 import { transpose } from './utils/transpose.js'
 import SimpleTable from './ui/simpleTable.js'
 import './table2d.css'
@@ -39,19 +39,28 @@ class PivotTable2D extends Component {
     
     generateCube (nextProps) {
         const { dataSource, aggFunc, Rows = ['Sex'], Columns = [], Measures } = nextProps || this.props
-        this.dataset = new DataSet({
-            FACT_TABLE: dataSource,
-            MEASURES: Measures,
+        this.dataset = createCube({
+            factTable: dataSource,
+            dimensions: Rows.concat(Columns),
+            measures: Measures,
             aggFunc: aggFunc
-        })
+        });
         let t0, t1;
         t0 = (new Date()).getTime()
-        this.dataset.DIMENSIONS = Rows
-        let rowTree = this.dataset.buildTree()
-        this.dataset.DIMENSIONS = Columns
-        let colTree = this.dataset.buildTree()
+        let rowTree = createCube({
+            factTable: dataSource,
+            dimensions: Rows,
+            measures: Measures,
+            aggFunc: aggFunc
+        }).tree;
+        let colTree = createCube({
+            factTable: dataSource,
+            dimensions: Columns,
+            measures: Measures,
+            aggFunc: aggFunc
+        }).tree;
         this.dataset.DIMENSIONS = Rows.concat(Columns)
-        this.dimTree = this.dataset.buildTree()
+        this.dimTree = this.dataset.tree;
         t1 = (new Date()).getTime()
         console.log('2d pivot: buildTree', t1 - t0)
         t0 = (new Date()).getTime()
@@ -70,7 +79,7 @@ class PivotTable2D extends Component {
             // console.log('node', node)
             // console.log(node.aggData(this.props.Measures))
             // debugger;
-            return node.aggData(this.props.Measures)
+            return node._aggData
         } else {
             return this.searchTree(node.children.get(dims[level]), dims, level + 1)
         }

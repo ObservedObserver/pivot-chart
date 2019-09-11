@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import { Table } from 'antd';
-import { DataSet } from './utils/dataset.1.js'
+import { createCube } from 'cube-core';
 import { transTree } from './utils/antTree.1.js'
 import { adjustTable, BASE_WIDTH } from './ui/adjustTable.js'
 import './index.css'
@@ -83,12 +83,13 @@ class PivotTable1D extends Component {
     }
     generateCube (nextProps) {
         const { dataSource, aggFunc, Dimensions, Measures } = nextProps || this.props
-        this.dataset = new DataSet({
-            FACT_TABLE: dataSource,
-            DIMENSIONS: Dimensions,
-            MEASURES: Measures,
+        this.dataset = createCube({
+            factTable: dataSource,
+            dimensions: Dimensions,
+            measures: Measures,
             aggFunc: aggFunc
-        })
+        });
+        // debugger
         let t = (new Date()).getTime(), t1;
         this.dataset.buildTree()
         t1 = (new Date()).getTime()
@@ -98,6 +99,7 @@ class PivotTable1D extends Component {
         t1 = (new Date()).getTime()
         console.log('[aggregate tree]: Done!', t1 - t)
         t = (new Date()).getTime()
+        console.log(this.dataset.tree);
         let tree = transTree(this.dataset.tree)
         t1 = (new Date()).getTime()
         console.log('[transfer tree into Ant]: Done!', t1 - t)

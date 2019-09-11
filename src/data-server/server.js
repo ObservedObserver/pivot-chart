@@ -1,12 +1,10 @@
 const express = require('express');
-const fs = require('fs')
+const fs = require('fs');
+const path = require('path');
+const loadCSVData = require('./loadData.js');
+
 const app = express();
-const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser')
-const loadCSVData = require('./loadData.js')
-app.use(bodyParser.json());
-app.use(cookieParser())
-app.use(bodyParser.urlencoded({extended: false}));
+
 app.all('*',function (req, res, next) {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Credentials', true)
@@ -22,8 +20,7 @@ app.all('*',function (req, res, next) {
 });
 
 app.get('/api/data/students', function (req, res) {
-    fs.readFileSync('./StudentsPerformance.csv')
-    const result = loadCSVData('./StudentsPerformance.csv')
+    const result = loadCSVData(path.resolve(__dirname , './StudentsPerformance.csv'))
     res.json(result)
 })
 

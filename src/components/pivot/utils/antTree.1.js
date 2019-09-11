@@ -7,7 +7,7 @@ function transTree (dataTree) {
     }
     let cnt = 1
     function dfs(node, antNode, level) {
-        let aggData = node.aggData()
+        let aggData = node._aggData
         let children = node.children.keys()
         for (let child of children) {
             let antChild = {
