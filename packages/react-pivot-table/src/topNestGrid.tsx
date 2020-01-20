@@ -1,28 +1,27 @@
-import React, { useMemo, ReactNodeArray, ReactElement } from 'react';
+import React, { useMemo, ReactNodeArray, useEffect } from 'react';
 import deepcopy from 'deepcopy';
 import styled from 'styled-components';
+import { useNestTree } from './utils';
+import { NestTree } from './common';
 
 const Table = styled.table`
  td{
   border: 1px solid #333;
  }
 `
-export interface NestTree {
-  id: string;
-  children?: NestTree[];
-  expanded?: boolean;
-}
 
 interface LeftNestGridProps {
   data: NestTree;
   depth: number;
 }
+
 function dfs (tree: NestTree) {
   tree.expanded = true;
   if (tree.children && tree.children.length > 0) {
-    for (let child of tree.children) {
+    tree.children.forEach((child, index) => {
+      child.path = [...tree.path || [], index]
       dfs(child)
-    }
+    })
   }
 }
 function tree2renderTree (tree: NestTree) {
@@ -42,37 +41,43 @@ function getExpandedChildSize (tree: NestTree): number {
   return size;
 }
 
-function dfsRender (tree: NestTree, depth: number, rows: ReactNodeArray[]) {
+function dfsRender (tree: NestTree, depth: number, rows: ReactNodeArray[], callback: (path: number[]) => void) {
   if (tree.expanded && tree.children && tree.children.length > 0) {
-    rows[depth].push(<td rowSpan={rows.length - depth}>{tree.id}(total)</td>)
-    rows[depth].push(<td colSpan={getExpandedChildSize(tree) - 1}>{tree.id}</td>)
+    rows[depth].push(<td key={`${tree.id}-total`} rowSpan={rows.length - depth}>{tree.id}(total)</td>)
+    rows[depth].push(<td key={tree.id} onClick={() => { callback(tree.path); }} colSpan={getExpandedChildSize(tree) - 1}>{tree.id}</td>)
     for (let child of tree.children) {
-      dfsRender(child, depth + 1, rows);
+      dfsRender(child, depth + 1, rows, callback);
     }
   } else {
-    rows[depth].push(<td>{tree.id}</td>)
+    rows[depth].push(<td key={tree.id} rowSpan={rows.length - depth} onClick={() => { callback(tree.path); }}>{tree.id}</td>)
   }
 }
 
-const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
-  let { data, depth } = props
-  const renderTree = useMemo<ReactNodeArray>(() => {
+const TopNestGrid: React.FC<LeftNestGridProps> = props => {
+  let { data, depth } = props;
+  const { nestTree, setNestTree, repaint } = useNestTree();
+
+  useEffect(() => {
     let newTree = tree2renderTree(data);
-    let ans: ReactNodeArray[] = [];
-    for (let i = 0; i < depth; i++) ans.push([]);
-    dfsRender(newTree, 0, ans);
-    return ans;
+    setNestTree(newTree);
   }, [data])
 
+  const renderTree = useMemo<ReactNodeArray[]>(() => {
+    let ans: ReactNodeArray[] = [];
+    if (nestTree) {
+      for (let i = 0; i < depth; i++) ans.push([]);
+      dfsRender(nestTree, 0, ans, repaint);
+    }
+    return ans;
+  }, [nestTree, repaint])
+
   return <div>
-    <pre>
-      {JSON.stringify(data, null, 2)}
-    </pre>
     <Table style={{ border: '1px solid #000'}}>
-      {renderTree.map(row => <tr>{row}</tr>)}
+      <thead>
+        {renderTree.map((row, index) => <tr key={`row-${index}`}>{row}</tr>)}
+      </thead>
     </Table>
-    
   </div>
 }
 
-export default LeftNestGrid;
+export default TopNestGrid;
