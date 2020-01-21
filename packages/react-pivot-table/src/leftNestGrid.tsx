@@ -1,22 +1,25 @@
-import React, { useMemo, ReactNodeArray, ReactElement, useState, useEffect, useCallback } from 'react';
+import React, { useMemo, ReactNodeArray, useEffect, useCallback } from 'react';
 import deepcopy from 'deepcopy';
 import styled from 'styled-components';
 import produce from 'immer';
 import { NestTree } from './common';
-import { useNestTree } from './utils';
+import { useNestTree, transTree2LeafPathList } from './utils';
 
 const Table = styled.table`
- td{
   border: 1px solid #333;
- }
+  td {
+    border: 1px solid #333;
+  }
 `
-
 interface LeftNestGridProps {
   data: NestTree;
   depth: number;
+  onExpandChange?: (lpList: string[][]) => void;
 }
+
 function dfs (tree: NestTree) {
   tree.expanded = true;
+  tree.path ? null : tree.path = [];
   if (tree.children && tree.children.length > 0) {
     tree.children.forEach((child, index) => {
       child.path = [...tree.path || [], index]
@@ -44,7 +47,7 @@ function getExpandedChildSize (tree: NestTree): number {
 function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray, callback: (path: number[]) => void) {
   if (tree.expanded && tree.children && tree.children.length > 0) {
     rows.push(
-      <tr key={tree.id}>
+      <tr key={`${tree.path.join('-')}-${tree.id}`}>
         <td
           rowSpan={getExpandedChildSize(tree)}
           onClick={() => { callback(tree.path); }}
@@ -58,18 +61,25 @@ function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray,
       dfsRender(child, leftRowNumber - 1, rows, callback)
     }
   } else {
-    rows.push(<tr key={tree.id}><td colSpan={leftRowNumber} onClick={() => { callback(tree.path); }}>{tree.id}</td></tr>)
+    rows.push(<tr key={`${tree.path.join('-')}-${tree.id}`}><td colSpan={leftRowNumber + 1} onClick={() => { callback(tree.path); }}>{tree.id}</td></tr>)
   } 
 }
 
 const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
-  let { data, depth } = props
+  let { data, depth, onExpandChange } = props
   const { nestTree, setNestTree, repaint } = useNestTree();
-  
+
   useEffect(() => {
     let newTree = tree2renderTree(data);
     setNestTree(newTree);
   }, [data])
+
+  useEffect(() => {
+    if (onExpandChange) {
+      const lpList = transTree2LeafPathList(nestTree);
+      onExpandChange(lpList);
+    }
+  }, [nestTree])
 
   const renderTree = useMemo<ReactNodeArray>(() => {
     let ans: ReactNodeArray = [];
@@ -80,7 +90,7 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
   }, [nestTree, repaint])
 
   return <div>
-    <Table style={{ border: '1px solid #000'}}>
+    <Table>
       <thead>
         {renderTree}
       </thead>

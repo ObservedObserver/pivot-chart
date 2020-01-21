@@ -1,9 +1,22 @@
 import { DataSource, Record } from "../src/common";
+import titanic from './titanic.json';
+
 interface DataDemo {
   dataSource: DataSource;
   dimensions: string[];
   measures: string[];
 }
+
+export function getTitanicData () {
+  const { dataSource, config } = titanic;
+  const { Dimensions: dimensions, Measures: measures } = config;
+  return {
+    dataSource,
+    dimensions,
+    measures
+  }
+}
+
 export function mockData(): DataDemo {
   let size = 100;
   let dimensions = ['Sex', 'Place', 'Date'];

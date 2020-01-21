@@ -1,22 +1,26 @@
-import React, { useMemo, ReactNodeArray, useEffect } from 'react';
+import React, { useMemo, ReactNodeArray, useEffect, useRef } from 'react';
 import deepcopy from 'deepcopy';
 import styled from 'styled-components';
-import { useNestTree } from './utils';
+import { useNestTree, transTree2LeafPathList } from './utils';
 import { NestTree } from './common';
 
 const Table = styled.table`
- td{
-  border: 1px solid #333;
- }
-`
+  td {
+    border: 1px solid #333;
+    width: 100px;
+  }
+`;
 
 interface LeftNestGridProps {
   data: NestTree;
   depth: number;
+  onSizeChange?: (width: number, height: number) => void;
+  onExpandChange?: (lpList: string[][]) => void;
 }
 
 function dfs (tree: NestTree) {
   tree.expanded = true;
+  tree.path ? null : tree.path = [];
   if (tree.children && tree.children.length > 0) {
     tree.children.forEach((child, index) => {
       child.path = [...tree.path || [], index]
@@ -54,7 +58,8 @@ function dfsRender (tree: NestTree, depth: number, rows: ReactNodeArray[], callb
 }
 
 const TopNestGrid: React.FC<LeftNestGridProps> = props => {
-  let { data, depth } = props;
+  let { data, depth, onSizeChange, onExpandChange } = props;
+  const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
 
   useEffect(() => {
@@ -65,19 +70,31 @@ const TopNestGrid: React.FC<LeftNestGridProps> = props => {
   const renderTree = useMemo<ReactNodeArray[]>(() => {
     let ans: ReactNodeArray[] = [];
     if (nestTree) {
-      for (let i = 0; i < depth; i++) ans.push([]);
+      for (let i = 0; i <= depth; i++) ans.push([]);
       dfsRender(nestTree, 0, ans, repaint);
     }
     return ans;
   }, [nestTree, repaint])
 
-  return <div>
-    <Table style={{ border: '1px solid #000'}}>
-      <thead>
-        {renderTree.map((row, index) => <tr key={`row-${index}`}>{row}</tr>)}
-      </thead>
-    </Table>
-  </div>
+  useEffect(() => {
+    if (onExpandChange) {
+      const lpList = transTree2LeafPathList(nestTree);
+      onExpandChange(lpList);
+    }
+  }, [nestTree])
+
+  useEffect(() => {
+    if (onSizeChange) {
+      const style = window.getComputedStyle(container.current, null);
+      const width = parseInt(style.getPropertyValue('width'));
+      const height = parseInt(style.getPropertyValue('height'));
+      onSizeChange(width, height);
+    }
+  })
+
+  return <thead ref={container} style={{ border: '1px solid #000'}}>
+    {renderTree.map((row, index) => <tr key={`row-${index}`}>{row}</tr>)}
+  </thead>
 }
 
 export default TopNestGrid;

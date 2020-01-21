@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { mockData } from './mock';
+import { mockData, getTitanicData } from './mock';
 import { DataSource } from '../src/common';
 import MagicCube from '../src/index';
 function App () {
@@ -8,12 +8,13 @@ function App () {
   const [dimensions, setDimensions] = useState<string[]>([]);
   const [measures, setMeasures] = useState<string[]>([]);
   useEffect(() => {
-    const { dataSource, dimensions, measures } = mockData();
+    const { dataSource, dimensions, measures } = getTitanicData();
+    console.log({ dataSource, dimensions, measures })
     setData(dataSource);
     setDimensions(dimensions);
     setMeasures(measures);
   }, [])
-  return <MagicCube dataSource={data} dimensions={dimensions} measures={measures} />
+  return <MagicCube dataSource={data} rows={['Sex', 'Embarked', "Parch"]} columns={['Pclass']} measures={['Count']} />
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
