@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree } from './common';
+import { DataSource, NestTree, Record } from './common';
 import { createCube, sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
@@ -20,22 +20,25 @@ interface MagicCubeProps {
   measures: string[];
 }
 
-function getCossMatrix(cube: momentCube, rowLPList: string[][] = [], columnLPList: string[][] = []): any[][] {
+function getCossMatrix(cubeRC: momentCube, cubeCR: momentCube, rowLPList: string[][] = [], columnLPList: string[][] = []): Record[][] {
   const rowLen = rowLPList.length;
   const columnLen = columnLPList.length;
-  let crossMatrix: Array<Array<number | string | null>> = [];
-  function getCell (node: Node, path: string[], depth: number): number | string | null {
+  let crossMatrix: Array<Array<Record>> = [];
+  function getCell (node: Node, path: string[], depth: number): Record {
     if (typeof node === 'undefined') return null;
     if (depth === path.length) {
-      return JSON.stringify(node._aggData);
+      return node._aggData;
     }
     return getCell(node.children.get(path[depth]), path, depth + 1);
   }
   for (let i = 0; i < rowLen; i++) {
     crossMatrix.push([])
     for (let j = 0; j < columnLen; j++) {
-      let path = rowLPList[i].concat(columnLPList[j]);
-      crossMatrix[i].push(getCell(cube.tree, path, 0));
+      let result = getCell(cubeRC.tree, [...rowLPList[i], ...columnLPList[j]], 0);
+      if (!result) {
+        result = getCell(cubeCR.tree, [...columnLPList[j], ...rowLPList[i]], 0)
+      }
+      crossMatrix[i].push(result);
     }
   }
   return crossMatrix;
@@ -50,7 +53,8 @@ const Table = styled.table`
 
 const MagicCube: React.FC<MagicCubeProps> = props => {
   const { rows, columns, measures, dataSource } = props;
-  const cubeRef = useRef<momentCube>();
+  const cubeRCRef = useRef<momentCube>();
+  const cubeCRRef = useRef<momentCube>();
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
   const [columnLPList, setColumnLPList] = useState<string[][]>([]);
@@ -62,17 +66,24 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
   }, [dataSource, columns]);
 
   useEffect(() => {
-    cubeRef.current = createCube({
+    cubeRCRef.current = createCube({
       type: 'moment',
       factTable: dataSource,
       dimensions: [...rows, ...columns],
       measures,
       aggFunc: sum
     }) as momentCube;
+    cubeCRRef.current = createCube({
+      type: 'moment',
+      factTable: dataSource,
+      dimensions: [...columns, ...rows],
+      measures,
+      aggFunc: sum
+    }) as momentCube;
   }, [dataSource, rows, columns, measures])
 
   const crossMatrix = useMemo(() => {
-    return getCossMatrix(cubeRef.current, rowLPList, columnLPList);
+    return getCossMatrix(cubeRCRef.current, cubeCRRef.current, rowLPList, columnLPList);
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList])
   
   return (
@@ -90,6 +101,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
       <Table>
         <TopNestGrid
           depth={columns.length}
+          measures={measures}
           data={topNestTree}
           onSizeChange={(w, h) => {
             setEmptyGridHeight(h);
@@ -98,7 +110,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
             setColumnLPList(lpList);
           }}
         />
-        <CrossTable matrix={crossMatrix} />
+        <CrossTable matrix={crossMatrix} measures={measures} />
       </Table>
     </div>
   );

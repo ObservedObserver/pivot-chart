@@ -14,7 +14,7 @@ function App () {
     setDimensions(dimensions);
     setMeasures(measures);
   }, [])
-  return <MagicCube dataSource={data} rows={['Sex', 'Embarked', "Parch"]} columns={['Pclass']} measures={['Count']} />
+  return <MagicCube dataSource={data} rows={['Sex', 'Embarked', "Parch"]} columns={['Pclass', 'SibSp']} measures={['Count', 'Survived']} />
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))

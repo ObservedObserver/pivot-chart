@@ -11,9 +11,10 @@ const Table = styled.table`
   }
 `;
 
-interface LeftNestGridProps {
+interface TopNestGridProps {
   data: NestTree;
   depth: number;
+  measures: string[];
   onSizeChange?: (width: number, height: number) => void;
   onExpandChange?: (lpList: string[][]) => void;
 }
@@ -45,20 +46,26 @@ function getExpandedChildSize (tree: NestTree): number {
   return size;
 }
 
-function dfsRender (tree: NestTree, depth: number, rows: ReactNodeArray[], callback: (path: number[]) => void) {
+function dfsRender (tree: NestTree, measures: string[], depth: number, rows: ReactNodeArray[], callback: (path: number[]) => void) {
   if (tree.expanded && tree.children && tree.children.length > 0) {
-    rows[depth].push(<td key={`${tree.id}-total`} rowSpan={rows.length - depth}>{tree.id}(total)</td>)
-    rows[depth].push(<td key={tree.id} onClick={() => { callback(tree.path); }} colSpan={getExpandedChildSize(tree) - 1}>{tree.id}</td>)
+    rows[depth].push(<td key={`${tree.path.join('-')}-${tree.id}-total`} colSpan={measures.length} rowSpan={rows.length - depth - 1}>{tree.id}(total)</td>)
+    rows[depth].push(<td key={`${tree.path.join('-')}-${tree.id}`} onClick={() => { callback(tree.path); }} colSpan={measures.length * (getExpandedChildSize(tree) - 1)}>{tree.id}</td>)
+    measures.forEach(mea => {
+      rows[rows.length - 1].push(<td key={`${tree.id}-${mea}`}>{mea}</td>)
+    })
     for (let child of tree.children) {
-      dfsRender(child, depth + 1, rows, callback);
+      dfsRender(child, measures, depth + 1, rows, callback);
     }
   } else {
-    rows[depth].push(<td key={tree.id} rowSpan={rows.length - depth} onClick={() => { callback(tree.path); }}>{tree.id}</td>)
+    rows[depth].push(<td key={`${tree.path.join('-')}-${tree.id}`} colSpan={measures.length} rowSpan={rows.length - depth - 1} onClick={() => { callback(tree.path); }}>{tree.id}</td>)
+    measures.forEach(mea => {
+      rows[rows.length - 1].push(<td key={`${tree.path.join('-')}-${tree.id}-${mea}`}>{mea}</td>)
+    })
   }
 }
 
-const TopNestGrid: React.FC<LeftNestGridProps> = props => {
-  let { data, depth, onSizeChange, onExpandChange } = props;
+const TopNestGrid: React.FC<TopNestGridProps> = props => {
+  let { data, depth, measures, onSizeChange, onExpandChange } = props;
   const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
 
@@ -70,8 +77,8 @@ const TopNestGrid: React.FC<LeftNestGridProps> = props => {
   const renderTree = useMemo<ReactNodeArray[]>(() => {
     let ans: ReactNodeArray[] = [];
     if (nestTree) {
-      for (let i = 0; i <= depth; i++) ans.push([]);
-      dfsRender(nestTree, 0, ans, repaint);
+      for (let i = 0; i <= depth + 1; i++) ans.push([]);
+      dfsRender(nestTree, measures, 0, ans, repaint);
     }
     return ans;
   }, [nestTree, repaint])
