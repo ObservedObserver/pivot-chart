@@ -1,9 +1,9 @@
 import { useCallback, useState } from 'react';
 import { NestTree, DataSource, Record } from './common';
 import produce from 'immer';
-
+const RootName = 'ALL';
 export function useNestTree () {
-  let [nestTree, setNestTree] = useState<NestTree>({ id: 'root', path: [] });
+  let [nestTree, setNestTree] = useState<NestTree>({ id: RootName, path: [] });
   const repaint = useCallback((path: number[]) => {
     setNestTree(tree => {
       const newTree = produce(tree, draft => {
@@ -41,7 +41,7 @@ function insertNode (tree: HashTree, dimensions: string[], record: Record, depth
 }
 
 function transHashTree2NestTree (hasTree: HashTree) {
-  let tree: NestTree = { id: 'root' };
+  let tree: NestTree = { id: RootName };
   transHashDFS(hasTree, tree);
   return tree;
 }

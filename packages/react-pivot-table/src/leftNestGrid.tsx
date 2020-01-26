@@ -1,16 +1,11 @@
-import React, { useMemo, ReactNodeArray, useEffect, useCallback } from 'react';
+import React, { useMemo, ReactNodeArray, useEffect } from 'react';
 import deepcopy from 'deepcopy';
 import styled from 'styled-components';
-import produce from 'immer';
 import { NestTree } from './common';
 import { useNestTree, transTree2LeafPathList } from './utils';
+import ExpandButton from './components/expandButton';
+import { StyledTable } from './components/styledTable';
 
-const Table = styled.table`
-  border: 1px solid #333;
-  td {
-    border: 1px solid #333;
-  }
-`
 interface LeftNestGridProps {
   data: NestTree;
   depth: number;
@@ -48,20 +43,32 @@ function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray,
   if (tree.expanded && tree.children && tree.children.length > 0) {
     rows.push(
       <tr key={`${tree.path.join('-')}-${tree.id}`}>
-        <td
+        <th
           rowSpan={getExpandedChildSize(tree)}
           onClick={() => { callback(tree.path); }}
         >
-          {tree.id}
-        </td>
-        <td colSpan={leftRowNumber}>{tree.id}(total)</td>
+          <ExpandButton type={tree.expanded ? 'minus' : 'plus'} />&nbsp;{tree.id}
+        </th>
+        <th colSpan={leftRowNumber}>{tree.id}(total)</th>
       </tr>
     );
     for (let child of tree.children) {
       dfsRender(child, leftRowNumber - 1, rows, callback)
     }
   } else {
-    rows.push(<tr key={`${tree.path.join('-')}-${tree.id}`}><td colSpan={leftRowNumber + 1} onClick={() => { callback(tree.path); }}>{tree.id}</td></tr>)
+    rows.push(
+      <tr key={`${tree.path.join("-")}-${tree.id}`}>
+        <th
+          colSpan={leftRowNumber + 1}
+          onClick={() => {
+            callback(tree.path);
+          }}
+        >
+          { tree.children && tree.children.length > 0 && <ExpandButton type={tree.expanded ? 'minus' : 'plus'} /> }
+          &nbsp;{tree.id}
+        </th>
+      </tr>
+    );
   } 
 }
 
@@ -90,11 +97,11 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
   }, [nestTree, repaint])
 
   return <div>
-    <Table>
+    <StyledTable>
       <thead>
         {renderTree}
       </thead>
-    </Table>
+    </StyledTable>
   </div>
 }
 

@@ -10,3 +10,8 @@ export interface NestTree {
   expanded?: boolean;
   path?: number[];
 }
+
+export interface Field {
+  id: string;
+  name: string;
+}

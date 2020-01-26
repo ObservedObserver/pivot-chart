@@ -5,11 +5,11 @@ import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
-import { mockTreeData } from '../example/mock';
 import immer, { setAutoFreeze } from 'immer';
 import styled from 'styled-components';
 import { getPureNestTree } from './utils';
 import { Node } from 'cube-core/built/core/momentCube';
+import { StyledTable } from './components/styledTable';
 
 setAutoFreeze(false);
 
@@ -44,15 +44,8 @@ function getCossMatrix(cubeRC: momentCube, cubeCR: momentCube, rowLPList: string
   return crossMatrix;
 }
 
-const Table = styled.table`
-  border: 1px solid #333;
-  td{
-    border: 1px solid #333;
-  }
-`
-
 const MagicCube: React.FC<MagicCubeProps> = props => {
-  const { rows, columns, measures, dataSource } = props;
+  const { rows = [], columns = [], measures = [], dataSource = [] } = props;
   const cubeRCRef = useRef<momentCube>();
   const cubeCRRef = useRef<momentCube>();
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
@@ -87,31 +80,33 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList])
   
   return (
-    <div style={{ display: "flex", flexWrap: "nowrap" }}>
-      <div>
-        <div style={{ height: emptyGridHeight }}></div>
-        <LeftNestGrid
-          depth={rows.length}
-          data={leftNestTree}
-          onExpandChange={lpList => {
-            setRowLPList(lpList);
-          }}
-        />
+    <div style={{ border: '1px solid #000', overflowX: 'auto' }}>
+      <div style={{ display: "flex", flexWrap: "nowrap" }}>
+        <div>
+          <div style={{ height: emptyGridHeight }}></div>
+          <LeftNestGrid
+            depth={rows.length}
+            data={leftNestTree}
+            onExpandChange={lpList => {
+              setRowLPList(lpList);
+            }}
+          />
+        </div>
+        <StyledTable>
+          <TopNestGrid
+            depth={columns.length}
+            measures={measures}
+            data={topNestTree}
+            onSizeChange={(w, h) => {
+              setEmptyGridHeight(h);
+            }}
+            onExpandChange={lpList => {
+              setColumnLPList(lpList);
+            }}
+          />
+          <CrossTable matrix={crossMatrix} measures={measures} />
+        </StyledTable>
       </div>
-      <Table>
-        <TopNestGrid
-          depth={columns.length}
-          measures={measures}
-          data={topNestTree}
-          onSizeChange={(w, h) => {
-            setEmptyGridHeight(h);
-          }}
-          onExpandChange={lpList => {
-            setColumnLPList(lpList);
-          }}
-        />
-        <CrossTable matrix={crossMatrix} measures={measures} />
-      </Table>
     </div>
   );
 }
