@@ -62,7 +62,7 @@ function dfsRender(
         onClick={() => {
           callback(tree.path);
         }}
-        colSpan={measures.length * (getExpandedChildSize(tree) - 1)}
+        colSpan={(measures.length || 1) * (getExpandedChildSize(tree) - 1)}
       >
         <ExpandButton type={tree.expanded ? "minus" : "plus"} />
         &nbsp;
@@ -79,7 +79,7 @@ function dfsRender(
     rows[depth].push(
       <th
         key={`${tree.path.join("-")}-${tree.id}`}
-        colSpan={measures.length}
+        colSpan={(measures.length || 1) * getExpandedChildSize(tree)}
         rowSpan={rows.length - depth - 1}
         onClick={() => {
           callback(tree.path);
