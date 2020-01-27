@@ -70,7 +70,7 @@ function dfsRender(
       </th>
     );
     measures.forEach(mea => {
-      rows[rows.length - 1].push(<th key={`${tree.id}-${mea}`}>{mea}</th>);
+      rows[rows.length - 1].push(<th key={`${tree.path.join("-")}-${tree.id}-${mea}`}>{mea}</th>);
     });
     for (let child of tree.children) {
       dfsRender(child, measures, depth + 1, rows, callback);
