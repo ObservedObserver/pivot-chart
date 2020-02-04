@@ -14,9 +14,36 @@ const FieldsContainer = styled.div`
   min-height: 2.4em;
 `;
 
+const FieldListSegment = styled.div`
+  display: flex;
+  border: 1px solid #DFE3E8;
+  margin: 0.2em;
+  div.fl-header {
+    flex-basis: 100px;
+    border-right: 1px solid #DFE3E8;
+    background-color: #DFE3E8;
+    h4 {
+      margin: 0.6em;
+    }
+  }
+  div.fl-container {
+    flex-grow: 10
+  }
+`;
+
 const FieldListContainer: React.FC<{name: string}> = props => {
-  return <div style={{ display: 'flex', border: '1px solid #8c8c8c', margin: '0.2em' }}>
-    <div style={{ flexBasis: 100, flexGrow: 1, borderRight: '1px solid #8c8c8c', backgroundColor: '#f5f5f5' }}>{props.name}</div>
+  return <FieldListSegment>
+    <div className="fl-header">
+      <h4>{props.name}</h4>
+    </div>
+    <div className="fl-container">
+      { props.children }
+    </div>
+  </FieldListSegment>;
+  return <div style={{ display: 'flex', border: '1px solid #DFE3E8', margin: '0.2em' }}>
+    <div style={{ flexBasis: 100, flexGrow: 1, borderRight: '1px solid #DFE3E8', backgroundColor: '#DFE3E8' }}>
+      <h4>{props.name}</h4>
+    </div>
     <div style={{ flexGrow: 10 }}>
       { props.children }
     </div>
@@ -27,7 +54,7 @@ const FieldLabel = styled.div`
   padding: 0.2em 0.4em;
   margin: 0.2em;
   border-radius: 0.2em;
-  background-color: #d9d9d9;
+  background-color: #DFE3E8;
   color: #262626;
 `;
 

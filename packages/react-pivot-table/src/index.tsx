@@ -8,7 +8,7 @@ import CrossTable from './crossTable';
 import { setAutoFreeze } from 'immer';
 import { getPureNestTree, getCossMatrix } from './utils';
 import { Node } from 'cube-core/built/core/momentCube';
-import { StyledTable } from './components/styledTable';
+import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
 import { AggFC } from 'cube-core/built/types';
 
 setAutoFreeze(false);
@@ -48,10 +48,10 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList])
   
   return (
-    <div style={{ border: '1px solid #000', overflowX: 'auto' }}>
+    <div style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: 'auto' }}>
       <div style={{ display: "flex", flexWrap: "nowrap" }}>
         <div>
-          <div style={{ height: emptyGridHeight }}></div>
+          <div style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}></div>
           <LeftNestGrid
             depth={rows.length}
             data={leftNestTree}
@@ -66,7 +66,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
             measures={measures}
             data={topNestTree}
             onSizeChange={(w, h) => {
-              setEmptyGridHeight(h);
+              setEmptyGridHeight(h + 2);
             }}
             onExpandChange={lpList => {
               setColumnLPList(lpList);
