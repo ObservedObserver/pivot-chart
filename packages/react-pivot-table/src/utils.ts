@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
-import { NestTree, DataSource, Record } from './common';
+import { NestTree, DataSource, Record, Measure } from './common';
 import produce from 'immer';
+import { sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import { Node } from 'cube-core/built/core/momentCube';
 import { AggFC } from 'cube-core/built/types';
@@ -81,7 +82,7 @@ interface QueryNode {
   dimValue: string
 }
 export type QueryPath = QueryNode[]
-export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: string[], measures: string[], aggFunc: AggFC): Record {
+export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: string[], measures: Measure[]): Record {
   let tree = cube.tree;
   let queryPath: QueryPath = [];
   for (let dim of cubeDimensions) {
@@ -103,7 +104,12 @@ export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: str
     }
   }
   // todo different handler for holistic and algebra.
-  return aggFunc(subset, measures);
+  let result: Record = {};
+  for (let mea of measures) {
+    let aggObj = mea.aggregator ? mea.aggregator(subset, [mea.id]) : sum(subset, [mea.id]);
+    result[mea.id] = aggObj[mea.id];
+  }
+  return result;
 }
 
 function queryNode(node: Node, path: QueryPath, depth: number): Node[] {
@@ -127,18 +133,18 @@ function queryNode(node: Node, path: QueryPath, depth: number): Node[] {
   return ans;
 }
 
-export function getCossMatrix(cube: momentCube, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: string[]): Record[][] {
+export function getCossMatrix(cube: momentCube, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[]): Record[][] {
   const rowLen = rowLPList.length;
   const columnLen = columnLPList.length;
   const dimensions = rows.concat(columns)
   let crossMatrix: Array<Array<Record>> = [];
-  function getCell (node: Node, path: string[], depth: number): Record {
-    if (typeof node === 'undefined') return null;
-    if (depth === path.length) {
-      return node._aggData;
-    }
-    return getCell(node.children.get(path[depth]), path, depth + 1);
-  }
+  // function getCell (node: Node, path: string[], depth: number): Record {
+  //   if (typeof node === 'undefined') return null;
+  //   if (depth === path.length) {
+  //     return node._aggData;
+  //   }
+  //   return getCell(node.children.get(path[depth]), path, depth + 1);
+  // }
   for (let i = 0; i < rowLen; i++) {
     crossMatrix.push([])
     for (let j = 0; j < columnLen; j++) {
@@ -152,7 +158,7 @@ export function getCossMatrix(cube: momentCube, rowLPList: string[][] = [], colu
           dimValue: d
         }))
       ]
-      let result = queryCube(cube, path, dimensions, measures, cube.aggFunc);
+      let result = queryCube(cube, path, dimensions, measures);
       crossMatrix[i].push(result);
     }
   }

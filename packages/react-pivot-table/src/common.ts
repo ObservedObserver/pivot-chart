@@ -1,3 +1,5 @@
+import { AggFC } from 'cube-core/built/types';
+
 export interface Record {
   [key: string]: any
 }
@@ -14,4 +16,8 @@ export interface NestTree {
 export interface Field {
   id: string;
   name: string;
+}
+
+export interface Measure extends Field {
+  aggregator?: AggFC
 }

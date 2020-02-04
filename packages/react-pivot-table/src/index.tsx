@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree, Record } from './common';
+import { DataSource, NestTree, Field, Measure } from './common';
 import { createCube, sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
@@ -7,21 +7,30 @@ import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
 import { setAutoFreeze } from 'immer';
 import { getPureNestTree, getCossMatrix } from './utils';
-import { Node } from 'cube-core/built/core/momentCube';
 import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
-import { AggFC } from 'cube-core/built/types';
 
 setAutoFreeze(false);
 
 interface MagicCubeProps {
   dataSource: DataSource;
-  rows: string[];
-  columns: string[];
-  measures: string[];
+  rows: Field[];
+  columns: Field[];
+  measures: Measure[];
 }
-
+function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
+  const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
+  const columns = useMemo<string[]>(() => columnList.map(f => f.id), [columnList])
+  const measures = useMemo<string[]>(() => measureList.map(f => f.id), [measureList])
+  return { rows, columns, measures }
+}
 const MagicCube: React.FC<MagicCubeProps> = props => {
-  const { rows = [], columns = [], measures = [], dataSource = [] } = props;
+  const {
+    rows: rowList = [],
+    columns: columnList = [],
+    measures: measureList = [],
+    dataSource = []
+  } = props;
+  const { rows, columns, measures } = useMetaTransform(rowList, columnList, measureList);
   const cubeRef = useRef<momentCube>();
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
@@ -44,7 +53,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
   }, [dataSource, rows, columns, measures])
 
   const crossMatrix = useMemo(() => {
-    return getCossMatrix(cubeRef.current, rowLPList, columnLPList, rows, columns, measures);
+    return getCossMatrix(cubeRef.current, rowLPList, columnLPList, rows, columns, measureList);
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList])
   
   return (

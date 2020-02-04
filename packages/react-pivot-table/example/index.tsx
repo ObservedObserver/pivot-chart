@@ -4,6 +4,8 @@ import { mockData, getTitanicData } from './mock';
 import { DataSource } from '../src/common';
 import MagicCube from '../src/index';
 import DragableFields, { DraggableFieldState } from '../src/dragableFields/index';
+import { sum, count, mean } from 'cube-core';
+
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
 const initDraggableState: DraggableFieldState = {
@@ -19,12 +21,14 @@ function App () {
     console.log({ dataSource, dimensions, measures })
     setData(dataSource);
   }, [])
-  const rows = useMemo(() => fstate['rows'].map(f => f.id), [fstate['rows']]);
-  const columns = useMemo(() => fstate['columns'].map(f => f.id), [fstate['columns']]);
-  const measures = useMemo(() => fstate['measures'].map(f => f.id), [fstate['measures']]);
+  console.log(fstate)
+  const measures = useMemo(() => fstate['measures'].map(f => ({
+    ...f,
+    aggregator: count
+  })), [fstate['measures']]);
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
-    <MagicCube dataSource={data} rows={rows} columns={columns} measures={measures} />
+    <MagicCube dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }
 
