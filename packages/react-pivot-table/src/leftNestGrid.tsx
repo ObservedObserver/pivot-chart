@@ -98,7 +98,7 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
 
   return <div>
     <StyledTable>
-      <thead>
+      <thead className="vis">
         {renderTree}
       </thead>
     </StyledTable>

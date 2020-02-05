@@ -24,7 +24,7 @@ function App () {
   console.log(fstate)
   const measures = useMemo(() => fstate['measures'].map(f => ({
     ...f,
-    aggregator: count
+    aggregator: sum
   })), [fstate['measures']]);
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />

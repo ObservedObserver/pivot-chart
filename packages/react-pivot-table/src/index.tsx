@@ -6,7 +6,7 @@ import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
 import { setAutoFreeze } from 'immer';
-import { getPureNestTree, getCossMatrix } from './utils';
+import { getPureNestTree, getCossMatrix, getNestFields } from './utils';
 import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
 
 setAutoFreeze(false);
@@ -31,16 +31,19 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
     dataSource = []
   } = props;
   const { rows, columns, measures } = useMetaTransform(rowList, columnList, measureList);
+  const {
+    nestRows,
+    nestColumns,
+    dimensionsInView,
+    facetMeasures,
+    viewMeasures
+  } = useMemo(() => {
+    return getNestFields('bar', rows, columns, measureList)
+  }, [rows, columns, measureList]);
   const cubeRef = useRef<momentCube>();
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
   const [columnLPList, setColumnLPList] = useState<string[][]>([]);
-  const leftNestTree = useMemo<NestTree>(() => {
-    return getPureNestTree(dataSource, rows);
-  }, [dataSource, rows]);
-  const topNestTree = useMemo(() => {
-    return getPureNestTree(dataSource, columns);
-  }, [dataSource, columns]);
 
   useEffect(() => {
     cubeRef.current = createCube({
@@ -52,8 +55,18 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
     }) as momentCube;
   }, [dataSource, rows, columns, measures])
 
+  // {rows, columns, dimsInVis} = getNestDimensions(visType)
+  // getCell(path.concat(dimsInVis))
+
+  const leftNestTree = useMemo<NestTree>(() => {
+    return getPureNestTree(dataSource, nestRows);
+  }, [dataSource, nestRows]);
+  const topNestTree = useMemo<NestTree>(() => {
+    return getPureNestTree(dataSource, nestColumns);
+  }, [dataSource, nestColumns]);
+
   const crossMatrix = useMemo(() => {
-    return getCossMatrix(cubeRef.current, rowLPList, columnLPList, rows, columns, measureList);
+    return getCossMatrix('bar', cubeRef.current, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView);
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList])
   
   return (
@@ -62,7 +75,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
         <div>
           <div style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}></div>
           <LeftNestGrid
-            depth={rows.length}
+            depth={nestRows.length}
             data={leftNestTree}
             onExpandChange={lpList => {
               setRowLPList(lpList);
@@ -71,7 +84,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
         </div>
         <StyledTable>
           <TopNestGrid
-            depth={columns.length}
+            depth={nestColumns.length}
             measures={measures}
             data={topNestTree}
             onSizeChange={(w, h) => {
@@ -81,7 +94,7 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
               setColumnLPList(lpList);
             }}
           />
-          <CrossTable matrix={crossMatrix} measures={measures} />
+          <CrossTable matrix={crossMatrix} measures={measures} dimensionsInView={dimensionsInView} />
         </StyledTable>
       </div>
     </div>

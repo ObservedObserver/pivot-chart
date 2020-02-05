@@ -82,7 +82,15 @@ interface QueryNode {
   dimValue: string
 }
 export type QueryPath = QueryNode[]
-export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: string[], measures: Measure[]): Record {
+export type VisType = 'number' | 'bar';
+/**
+ * 
+ * @param cube 
+ * @param path 
+ * @param cubeDimensions 
+ * @param measures 
+ */
+export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: string[], measures: Measure[]): DataSource {
   let tree = cube.tree;
   let queryPath: QueryPath = [];
   for (let dim of cubeDimensions) {
@@ -103,13 +111,14 @@ export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: str
       subset.push(record);
     }
   }
+  return subset;
   // todo different handler for holistic and algebra.
-  let result: Record = {};
-  for (let mea of measures) {
-    let aggObj = mea.aggregator ? mea.aggregator(subset, [mea.id]) : sum(subset, [mea.id]);
-    result[mea.id] = aggObj[mea.id];
-  }
-  return result;
+  // let result: Record = {};
+  // for (let mea of measures) {
+  //   let aggObj = mea.aggregator ? mea.aggregator(subset, [mea.id]) : sum(subset, [mea.id]);
+  //   result[mea.id] = aggObj[mea.id];
+  // }
+  // return result;
 }
 
 function queryNode(node: Node, path: QueryPath, depth: number): Node[] {
@@ -133,7 +142,16 @@ function queryNode(node: Node, path: QueryPath, depth: number): Node[] {
   return ans;
 }
 
-export function getCossMatrix(cube: momentCube, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[]): Record[][] {
+function aggregateAll(dataSource: DataSource, measures: Measure[]): Record {
+  let result: Record = {};
+  for (let mea of measures) {
+    let aggObj = mea.aggregator ? mea.aggregator(dataSource, [mea.id]) : sum(dataSource, [mea.id]);
+    result[mea.id] = aggObj[mea.id];
+  }
+  return result;
+}
+
+export function getCossMatrix(visType: VisType, cube: momentCube, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Record[][] | Record[][][] {
   const rowLen = rowLPList.length;
   const columnLen = columnLPList.length;
   const dimensions = rows.concat(columns)
@@ -159,8 +177,70 @@ export function getCossMatrix(cube: momentCube, rowLPList: string[][] = [], colu
         }))
       ]
       let result = queryCube(cube, path, dimensions, measures);
-      crossMatrix[i].push(result);
+      if (visType === 'number') {
+        crossMatrix[i].push(aggregateAll(result, measures));
+      } else {
+        crossMatrix[i].push(aggregateOnGroupBy(result, dimensionsInView, measures));
+      }
     }
   }
   return crossMatrix;
+}
+
+interface NestFields {
+  nestRows: string[];
+  nestColumns: string[];
+  dimensionsInView: string[];
+  facetMeasures: Measure[];
+  viewMeasures: Measure[];
+}
+export function getNestFields(visType: VisType, rows: string[], columns: string[], measures: Measure[]): NestFields  {
+  switch(visType) {
+    case 'number':
+      return {
+        nestRows: rows,
+        nestColumns: columns,
+        dimensionsInView: [],
+        facetMeasures: measures,
+        viewMeasures: measures
+      }
+    case 'bar':
+      return {
+        nestRows: rows,
+        nestColumns: columns.slice(0, -1),
+        dimensionsInView: columns.slice(-1),
+        facetMeasures: measures,
+        viewMeasures: measures
+      }
+    default:
+      return {
+        nestRows: rows,
+        nestColumns: columns,
+        dimensionsInView: [],
+        facetMeasures: measures,
+        viewMeasures: measures
+      }
+  }
+}
+
+export function aggregateOnGroupBy(dataSource: DataSource, fields: string[], measures: Measure[]): DataSource {
+  let groups = new Map<string, DataSource>();
+  let field = fields[0];
+  let data: DataSource = [];
+  for (let record of dataSource) {
+    if (!groups.has(record[field])) {
+      groups.set(record[field], [])
+    }
+    groups.get(record[field]).push(record);
+  }
+  for (let dataFrame of groups.entries()) {
+    let record: Record = {
+      [field]: dataFrame[0]
+    }
+    for (let mea of measures) {
+      record[mea.id] = (mea.aggregator || sum)(dataFrame[1], [mea.id])[mea.id];
+    }
+    data.push(record)
+  }
+  return data;
 }
