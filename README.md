@@ -1,3 +1,5 @@
+<img src="https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/lang-icons/icon128px.png" width="22px" /> English | [简体中文](./README.zh-CN.md)
+
 # Pivot-Chart
 ![](https://img.shields.io/npm/v/pivot-chart)
 ![](https://img.shields.io/github/license/ObservedObserver/pivot-chart)
