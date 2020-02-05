@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { DragDropContext, Droppable, Draggable, DropResult, ResponderProvided } from 'react-beautiful-dnd';
 import styled from 'styled-components';
 import { Field } from '../common';
+import Select, { Option } from './select';
+import produce from 'immer';
 
 const RootContainer = styled.div`
   font-size: 12px;
@@ -31,6 +33,21 @@ const FieldListSegment = styled.div`
   }
 `;
 
+const aggregatorList: Option[] = [
+  {
+    id: 'sum',
+    name: 'Sum'
+  },
+  {
+    id: 'mean',
+    name: 'Mean'
+  },
+  {
+    id: 'count',
+    name: 'Count'
+  }
+]
+
 const FieldListContainer: React.FC<{name: string}> = props => {
   return <FieldListSegment>
     <div className="fl-header">
@@ -40,14 +57,6 @@ const FieldListContainer: React.FC<{name: string}> = props => {
       { props.children }
     </div>
   </FieldListSegment>;
-  return <div style={{ display: 'flex', border: '1px solid #DFE3E8', margin: '0.2em' }}>
-    <div style={{ flexBasis: 100, flexGrow: 1, borderRight: '1px solid #DFE3E8', backgroundColor: '#DFE3E8' }}>
-      <h4>{props.name}</h4>
-    </div>
-    <div style={{ flexGrow: 10 }}>
-      { props.children }
-    </div>
-  </div>
 }
 
 const FieldLabel = styled.div`
@@ -165,7 +174,21 @@ const DraggableFields: React.FC<DraggableFieldsProps> = props => {
                       {...provided.draggableProps}
                       {...provided.dragHandleProps}
                     >
-                      {f.name}
+                      {f.name}&nbsp;
+                      {
+                        dkey === 'measures' && <Select
+                          options={aggregatorList}
+                          value={f.aggName}
+                          onChange={(value) => {
+                            setState(state => {
+                              const nextState = produce(state, draft => {
+                                draft[dkey][index].aggName = value
+                              });
+                              return nextState;
+                            })
+                          }}
+                          />
+                      }
                     </FieldLabel>
                   )}
                 </Draggable>)

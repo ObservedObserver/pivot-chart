@@ -5,7 +5,7 @@ import { DataSource, VisType } from '../src/common';
 import MagicCube, { ToolBar } from '../src/index';
 import DragableFields, { DraggableFieldState } from '../src/dragableFields/index';
 import { sum, count, mean } from 'cube-core';
-
+const aggregatorMapper = { sum, count, mean } as const;
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
 const initDraggableState: DraggableFieldState = {
@@ -25,7 +25,7 @@ function App () {
   console.log(fstate)
   const measures = useMemo(() => fstate['measures'].map(f => ({
     ...f,
-    aggregator: sum
+    aggregator: aggregatorMapper[(f.aggName || 'sum') as keyof typeof aggregatorMapper]
   })), [fstate['measures']]);
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />

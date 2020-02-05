@@ -16,6 +16,8 @@ export interface NestTree {
 export interface Field {
   id: string;
   name: string;
+  aggName?: string;
+  [key: string]: any;
 }
 
 export interface Measure extends Field {
