@@ -1,10 +1,10 @@
-.pivot-hema{
+.pivot-style{
 
 }
-.pivot-hema .ant-tree li {
+.pivot-style .ant-tree li {
     padding: 0px;
 }
-.pivot-hema .ant-tree li .ant-tree-node-content-wrapper {
+.pivot-style .ant-tree li .ant-tree-node-content-wrapper {
     /* height: 21px; */
     font-size: 14px;
     /* line-height: 21px; */
@@ -15,11 +15,11 @@
     border-top: 1px solid rgba(0,0,0,0);
 }
 
-.pivot-hema .ant-tree li .ant-tree-node-content-wrapper .ant-tree-node-content-wrapper-open{
+.pivot-style .ant-tree li .ant-tree-node-content-wrapper .ant-tree-node-content-wrapper-open{
     /* padding: 12px; */
 }
 
-.pivot-hema .ant-tree-child-tree{
+.pivot-style .ant-tree-child-tree{
     border-bottom: 1px solid rgba(0,0,0,0.8);
 }
 

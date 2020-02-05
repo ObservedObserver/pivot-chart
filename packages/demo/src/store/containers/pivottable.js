@@ -24,7 +24,7 @@ const getPivotTable = (state, tableType) => {
                 Columns: state.selector.Columns.map(item => item.name),
                 Measures: state.selector.Measures.map(item => item.name)
             }
-        case 'hema':
+        case 'style':
             return {
                 tableType,
                 height: 720,

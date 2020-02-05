@@ -2,12 +2,12 @@ import React, { Component } from 'react'
 import { Table, Row, Col } from 'antd';
 import { DataSet } from './utils/dataset.1.js'
 
-import './ui/hema.css'
+import './ui/style.css'
 
 function transTree (dataTree) {
     let antTree = {
         key: 0,
-        dimension: '汇总',
+        dimension: 'All',
         children: [],
         _level: 0
     }
@@ -25,12 +25,11 @@ function transTree (dataTree) {
             antNode.children.push(antChild)
             dfs(node.children.get(child), antChild, level + 1)
         }
-        antNode.aggData = node.aggData()
-        for (let measure in antNode.aggData) {
-            antNode[measure] = antNode.aggData[measure]
-        }
+        // for (let measure in aggData) {
+        //     antNode[measure] = aggData[measure]
+        // }
         // antNode._rawData = node.rawData
-        // antNode.aggData = node.aggData()
+        antNode.aggData = node.aggData()
         if (antNode.children.length === 0) {
             antNode.children = undefined
         }
@@ -56,7 +55,7 @@ function foldExpandedTree(tree, expandedKeys) {
     fold(tree[0])
     return arr
 }
-class PivotTableHema extends Component {
+class PivotTableStyle extends Component {
     constructor () {
         super()
         this.state = {
@@ -102,42 +101,47 @@ class PivotTableHema extends Component {
         this.dataset.aggTree()
         t1 = (new Date()).getTime()
         console.log('[aggregate tree]: Done!', t1 - t)
+        // t = (new Date()).getTime()
+        // let tree = transTree(this.dataset.tree)
+        // t1 = (new Date()).getTime()
+        // console.log('[transfer tree into Ant]: Done!', t1 - t)
+        // this.setState({
+        //     antTree: tree
+        // })
     }
     componentWillMount() {
         this.generateCube()
     }
     render() {
+        const {names} = this.props
         const dimLen = this.props.Dimensions.length
         const dimTree = transTree(this.dataset.tree)
-        // const measureData = foldExpandedTree(dimTree, this.state.expandedKeys) || []
+        const measureData = foldExpandedTree(dimTree, this.state.expandedKeys) || []
         const columns = this.props.Measures.map((item) => {
             return {
-                title: item,
+                title: names ? names[item] : item,
                 dataIndex: item,
-                key: item,
-                width: 160,
-                align: 'right',
-                className: 'measure-column'
+                key: item
             }
         })
         const dimColumn = [{
-            title: '维度数据',
+            title: 'Dimensions',
             dataIndex: 'dimension',
             key: 'dimension',
-            width: dimLen * 40 + 200,
-            fixed: 'left',
-            className: 'dimension-column'
+            width: dimLen * 80 + 200
         }]
         console.log(dimTree)
         console.log('columns', columns)
         return (
-            <div className="pivot-hema">
+            <div className="pivot-style">
                 <Row>
-                    <Col span={24} style={{overflowX: 'auto'}}>
-                    <Table
-                    scroll={{ x: this.props.Measures.length * 160 +  dimLen * 40 + 200}}
+                    <Col span={6} style={{overflowX: 'auto'}}>
+                    <Table 
                     onExpandedRowsChange = {this.onExpandedRowsChange}
-                    dataSource={dimTree} columns={dimColumn.concat(columns)}  size={'middle'} pagination={false}></Table>
+                    dataSource={dimTree} columns={dimColumn}  size={'middle'} pagination={false}></Table>
+                    </Col>
+                    <Col span={18}>
+                        <Table dataSource={measureData} columns={columns}  size={'middle'} pagination={false}></Table>
                     </Col>
                 </Row>
             </div>
@@ -145,4 +149,4 @@ class PivotTableHema extends Component {
     }
 }
 
-export default PivotTableHema;
+export default PivotTableStyle;

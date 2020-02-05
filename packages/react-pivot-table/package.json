@@ -1,21 +1,29 @@
 {
-  "name": "react-pivot-table",
+  "name": "pivot-chart",
   "version": "0.0.1",
   "description": "pivot table react component",
   "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server",
-    "init": "cp ./example/index.html ./dist/index.html"
+    "init": "cp ./example/index.html ./dist/index.html",
+    "build": "tsc"
   },
   "keywords": [
     "pivot-table",
-    "cube"
+    "pivot-chart",
+    "excel",
+    "cube",
+    "tableau",
+    "excel"
   ],
-  "author": "ObservedObserver",
+  "author": {
+    "name": "ObservedObserver",
+    "email": "270001151@qq.com"
+  },
   "license": "MIT",
   "devDependencies": {
-    "@types/echarts": "^4.4.2",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
     "@types/styled-components": "^4.4.2",
@@ -29,7 +37,6 @@
     "@types/react-beautiful-dnd": "^11.0.4",
     "cube-core": "^2.13.0",
     "deepcopy": "^2.0.0",
-    "echarts": "^4.6.0",
     "immer": "^5.3.2",
     "react": "^16.12.0",
     "react-beautiful-dnd": "^12.2.0",

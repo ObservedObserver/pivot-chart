@@ -12,7 +12,7 @@ const viewTypes = [
         icon: 'layout'
     },
     {
-        title: 'hema',
+        title: 'style',
         icon: 'frown-o'
     }
 ]

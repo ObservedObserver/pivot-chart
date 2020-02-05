@@ -1,16 +1,19 @@
 {
   "compilerOptions": {
-    "outDir": "./dist/",
+    "outDir": "./build/",
     "noImplicitAny": true,
     "module": "esnext",
     "lib": ["esnext.array", "es2019", "dom"],
     "target": "es5",
     "jsx": "react",
-    "allowJs": true,
     "sourceMap": true,
+    "declaration": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
     "downlevelIteration": true,
-    "resolveJsonModule": true
-  }
+    "resolveJsonModule": true,
+    "typeRoots": ["node_modules/@types"] 
+  },
+  "exclude": [ "node_modules", "functions" ],
+  "include": ["./src/**/*"]
 }

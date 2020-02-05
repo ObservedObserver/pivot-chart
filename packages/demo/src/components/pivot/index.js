@@ -1,7 +1,7 @@
 import React from 'react'
 import PivotTable1D from './table1d.js'
 import PivotTable2D from './table2d.js'
-import PivotTableHema from './tablehema.slow.js'
+import PivotTableStyle from './tablestyle.slow.js'
 
 const PivotTable = props => {
     console.log('pivot table get props:', props)
@@ -26,8 +26,8 @@ const PivotTable = props => {
                 Columns={Columns}
                 Measures={Measures}
                  />);
-        case 'hema':
-                return (<PivotTableHema
+        case 'style':
+                return (<PivotTableStyle
                     names={names}
                     height={height}
                     size={size}

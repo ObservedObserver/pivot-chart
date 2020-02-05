@@ -3,7 +3,7 @@ import G2 from '@antv/g2'
 
 let cid = 0
 function getChartId() {
-  return 'hema-areachart-' + cid++
+  return 'style-areachart-' + cid++
 }
 
 
