@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree, Field, Measure } from './common';
+import { DataSource, NestTree, Field, Measure, VisType } from './common';
 import { createCube, sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
@@ -8,7 +8,8 @@ import CrossTable from './crossTable';
 import { setAutoFreeze } from 'immer';
 import { getPureNestTree, getCossMatrix, getNestFields } from './utils';
 import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
-
+import ToolBar from './components/toolbar';
+export { ToolBar }
 setAutoFreeze(false);
 
 interface MagicCubeProps {
@@ -16,6 +17,7 @@ interface MagicCubeProps {
   rows: Field[];
   columns: Field[];
   measures: Measure[];
+  visType?: VisType;
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -28,8 +30,13 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
     rows: rowList = [],
     columns: columnList = [],
     measures: measureList = [],
-    dataSource = []
+    dataSource = [],
+    visType = 'number'
   } = props;
+  const cubeRef = useRef<momentCube>();
+  const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
+  const [rowLPList, setRowLPList] = useState<string[][]>([]);
+  const [columnLPList, setColumnLPList] = useState<string[][]>([]);
   const { rows, columns, measures } = useMetaTransform(rowList, columnList, measureList);
   const {
     nestRows,
@@ -38,12 +45,8 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
     facetMeasures,
     viewMeasures
   } = useMemo(() => {
-    return getNestFields('bar', rows, columns, measureList)
-  }, [rows, columns, measureList]);
-  const cubeRef = useRef<momentCube>();
-  const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
-  const [rowLPList, setRowLPList] = useState<string[][]>([]);
-  const [columnLPList, setColumnLPList] = useState<string[][]>([]);
+    return getNestFields(visType, rows, columns, measureList)
+  }, [rows, columns, measureList, visType]);
 
   useEffect(() => {
     cubeRef.current = createCube({
@@ -57,7 +60,12 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
 
   // {rows, columns, dimsInVis} = getNestDimensions(visType)
   // getCell(path.concat(dimsInVis))
-
+  const measuresInView = useMemo<string[]>(() => {
+    return viewMeasures.map(m => m.id);
+  }, [viewMeasures])
+  const measuresInFacet = useMemo<string[]>(() => {
+    return facetMeasures.map(m => m.id);
+  }, [facetMeasures])
   const leftNestTree = useMemo<NestTree>(() => {
     return getPureNestTree(dataSource, nestRows);
   }, [dataSource, nestRows]);
@@ -66,15 +74,20 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
   }, [dataSource, nestColumns]);
 
   const crossMatrix = useMemo(() => {
-    return getCossMatrix('bar', cubeRef.current, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView);
-  }, [dataSource, rows, columns, measures, rowLPList, columnLPList])
+    return getCossMatrix(visType, cubeRef.current, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView);
+  }, [dataSource, rows, columns, measures, rowLPList, columnLPList, visType])
   
   return (
-    <div style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: 'auto' }}>
+    <div
+      style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: "auto" }}
+    >
       <div style={{ display: "flex", flexWrap: "nowrap" }}>
         <div>
-          <div style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}></div>
+          <div
+            style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}
+          ></div>
           <LeftNestGrid
+            visType={visType}
             depth={nestRows.length}
             data={leftNestTree}
             onExpandChange={lpList => {
@@ -94,7 +107,13 @@ const MagicCube: React.FC<MagicCubeProps> = props => {
               setColumnLPList(lpList);
             }}
           />
-          <CrossTable matrix={crossMatrix} measures={measures} dimensionsInView={dimensionsInView} />
+          <CrossTable
+            visType={visType}
+            matrix={crossMatrix}
+            measures={measuresInFacet}
+            dimensionsInView={dimensionsInView}
+            measuresInView={measuresInView}
+          />
         </StyledTable>
       </div>
     </div>

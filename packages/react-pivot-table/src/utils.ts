@@ -4,7 +4,7 @@ import produce from 'immer';
 import { sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import { Node } from 'cube-core/built/core/momentCube';
-import { AggFC } from 'cube-core/built/types';
+import { VisType } from './common';
 const RootName = 'ALL';
 export function useNestTree () {
   let [nestTree, setNestTree] = useState<NestTree>({ id: RootName, path: [] });
@@ -81,8 +81,7 @@ interface QueryNode {
   dimCode: string;
   dimValue: string
 }
-export type QueryPath = QueryNode[]
-export type VisType = 'number' | 'bar';
+export type QueryPath = QueryNode[];
 /**
  * 
  * @param cube 
@@ -177,10 +176,18 @@ export function getCossMatrix(visType: VisType, cube: momentCube, rowLPList: str
         }))
       ]
       let result = queryCube(cube, path, dimensions, measures);
-      if (visType === 'number') {
-        crossMatrix[i].push(aggregateAll(result, measures));
-      } else {
-        crossMatrix[i].push(aggregateOnGroupBy(result, dimensionsInView, measures));
+      switch (visType) {
+        case 'bar':
+        case 'line':
+          crossMatrix[i].push(aggregateOnGroupBy(result, dimensionsInView, measures));
+          break;
+        case 'scatter':
+          crossMatrix[i].push(result);
+          break;
+        case 'number':
+        default:
+          crossMatrix[i].push(aggregateAll(result, measures));
+          break;
       }
     }
   }
@@ -205,12 +212,21 @@ export function getNestFields(visType: VisType, rows: string[], columns: string[
         viewMeasures: measures
       }
     case 'bar':
+    case 'line':
       return {
         nestRows: rows,
         nestColumns: columns.slice(0, -1),
         dimensionsInView: columns.slice(-1),
         facetMeasures: measures,
         viewMeasures: measures
+      }
+    case 'scatter':
+      return {
+        nestRows: rows,
+        nestColumns: columns,
+        dimensionsInView: [],
+        facetMeasures: measures,
+        viewMeasures: measures.slice(-1)
       }
     default:
       return {

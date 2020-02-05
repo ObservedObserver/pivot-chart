@@ -1,26 +1,26 @@
 import React, { useRef, useEffect } from 'react';
 import embed from 'vega-embed';
 import { DataSource } from '../common';
+import { AnyMark } from 'vega-lite/build/src/mark';
+import { VisType } from '../common';
 
 interface VegaProps {
+  markType: string;
   dataSource: DataSource;
   x: string;
   y: string;
   // onHeightChange?: (height: number) => void;
 }
-function mockData() {
-  let size = 8 + Math.round(Math.random() * 6);
-  let ans: any[] = [];
-  for (let i = 0; i < size; i ++) {
-    ans.push({
-      x: i,
-      y: Math.round(Math.random() * 10)
-    })
-  }
-  return ans;
+const visMapper: {[key: string]: AnyMark} = {
+  bar: 'bar',
+  line: 'line',
+  scatter: 'point'
+}
+function visType2MarkType (visType: string): AnyMark {
+  return visMapper[visType] || 'tick';
 }
 const VegaChart: React.FC<VegaProps> = props => {
-  const { x = 'x', y = 'y', dataSource = [{x: 1, y: 2},{x: 2, y: 3},{x: 3, y: 4}] } = props;
+  const { x = 'null', y = 'null', dataSource = [], markType } = props;
   const container = useRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -29,11 +29,11 @@ const VegaChart: React.FC<VegaProps> = props => {
         data: {
           values: dataSource
         },
-        mark: 'bar',
+        mark: visType2MarkType(markType),
         height: 200,
         encoding: {
           x: {
-            type: 'nominal',
+            type: markType === 'scatter' ? 'quantitative' : 'nominal',
             field: x
           },
           y: {

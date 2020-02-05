@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { mockData, getTitanicData } from './mock';
-import { DataSource } from '../src/common';
-import MagicCube from '../src/index';
+import { DataSource, VisType } from '../src/common';
+import MagicCube, { ToolBar } from '../src/index';
 import DragableFields, { DraggableFieldState } from '../src/dragableFields/index';
 import { sum, count, mean } from 'cube-core';
 
@@ -17,6 +17,7 @@ const initDraggableState: DraggableFieldState = {
 function App () {
   const [data, setData] = useState<DataSource>([]);
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
+  const [visType, setVisType] = useState<VisType>('number');
   useEffect(() => {
     console.log({ dataSource, dimensions, measures })
     setData(dataSource);
@@ -28,7 +29,8 @@ function App () {
   })), [fstate['measures']]);
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
-    <MagicCube dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <MagicCube visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }
 

@@ -21,3 +21,5 @@ export interface Field {
 export interface Measure extends Field {
   aggregator?: AggFC
 }
+
+export type VisType = 'number' | 'bar' | 'line' | 'scatter';

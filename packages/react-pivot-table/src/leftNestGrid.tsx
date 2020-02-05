@@ -1,13 +1,14 @@
 import React, { useMemo, ReactNodeArray, useEffect } from 'react';
 import deepcopy from 'deepcopy';
 import styled from 'styled-components';
-import { NestTree } from './common';
+import { NestTree, VisType } from './common';
 import { useNestTree, transTree2LeafPathList } from './utils';
 import ExpandButton from './components/expandButton';
 import { StyledTable } from './components/styledTable';
 
 interface LeftNestGridProps {
   data: NestTree;
+  visType: VisType;
   depth: number;
   onExpandChange?: (lpList: string[][]) => void;
 }
@@ -73,7 +74,7 @@ function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray,
 }
 
 const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
-  let { data, depth, onExpandChange } = props
+  let { data, depth, onExpandChange, visType } = props
   const { nestTree, setNestTree, repaint } = useNestTree();
 
   useEffect(() => {
@@ -98,7 +99,7 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
 
   return <div>
     <StyledTable>
-      <thead className="vis">
+      <thead className={visType === 'number' ? undefined : 'vis'}>
         {renderTree}
       </thead>
     </StyledTable>

@@ -1,18 +1,33 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, ReactNode } from 'react';
 import VegaChart from './charts/vegaChart';
 
-import { Record } from './common';
+import { Record, VisType } from './common';
 interface CrossTableProps {
   matrix: Record[][];
   measures: string[];
-  dimensionsInView: string[]
+  dimensionsInView: string[];
+  measuresInView: string[];
+  visType: VisType;
+}
+function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure: string, dimensionsInView: string[], measuresInView: string[]): ReactNode {
+  switch (visType) {
+    case 'bar':
+    case 'line':
+      return (<div className="vis-container">
+        {cell && <VegaChart markType={visType} dataSource={cell as Record[]} x={dimensionsInView[0]} y={facetMeasure} />}
+      </div>)
+    case 'scatter':
+      return (<div className="vis-container">
+        {cell && <VegaChart markType={visType} dataSource={cell as Record[]} x={measuresInView[0]} y={facetMeasure} />}
+      </div>)
+    case 'number':
+    default:
+      return (cell && (cell as Record)[facetMeasure]);
+  }
 }
 const CrossTable: React.FC<CrossTableProps> = props => {
-  const { matrix, measures, dimensionsInView } = props;
-  const [heightList, setHeightList] = useState<number[]>([]);
-  useEffect(() => {
-    setHeightList(matrix.map(() => 0))
-  }, [matrix]);
+  const { matrix, measures, dimensionsInView, measuresInView, visType } = props;
+  console.log(matrix)
   return (
     <tbody className="vis">
       {matrix.map((row, rIndex) => {
@@ -21,10 +36,9 @@ const CrossTable: React.FC<CrossTableProps> = props => {
             {row.flatMap((cell, cIndex) => {
               return measures.map(mea => (
                 <td key={`${rIndex}-${cIndex}-${mea}`}>
-                  {/* {cell && cell[mea]} */}
-                  <div className="vis-container">
-                    <VegaChart dataSource={cell as Record[]} x={dimensionsInView[0]} y={mea} />
-                  </div>
+                  {
+                    getCellContent(visType, cell, mea, dimensionsInView, measuresInView)
+                  }
                 </td>
               ));
             })}
