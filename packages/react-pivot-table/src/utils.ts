@@ -111,13 +111,6 @@ export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: str
     }
   }
   return subset;
-  // todo different handler for holistic and algebra.
-  // let result: Record = {};
-  // for (let mea of measures) {
-  //   let aggObj = mea.aggregator ? mea.aggregator(subset, [mea.id]) : sum(subset, [mea.id]);
-  //   result[mea.id] = aggObj[mea.id];
-  // }
-  // return result;
 }
 
 function queryNode(node: Node, path: QueryPath, depth: number): Node[] {
@@ -142,6 +135,7 @@ function queryNode(node: Node, path: QueryPath, depth: number): Node[] {
 }
 
 function aggregateAll(dataSource: DataSource, measures: Measure[]): Record {
+  // todo different handler for holistic and algebra.
   let result: Record = {};
   for (let mea of measures) {
     let aggObj = mea.aggregator ? mea.aggregator(dataSource, [mea.id]) : sum(dataSource, [mea.id]);
@@ -241,6 +235,7 @@ export function getNestFields(visType: VisType, rows: string[], columns: string[
 
 export function aggregateOnGroupBy(dataSource: DataSource, fields: string[], measures: Measure[]): DataSource {
   let groups = new Map<string, DataSource>();
+  // todo: support multi-dimensions.
   let field = fields[0];
   let data: DataSource = [];
   for (let record of dataSource) {

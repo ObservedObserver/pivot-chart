@@ -1,6 +1,5 @@
 import React, { useMemo, ReactNodeArray, useEffect } from 'react';
 import deepcopy from 'deepcopy';
-import styled from 'styled-components';
 import { NestTree, VisType } from './common';
 import { useNestTree, transTree2LeafPathList } from './utils';
 import ExpandButton from './components/expandButton';

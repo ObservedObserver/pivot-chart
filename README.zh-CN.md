@@ -33,10 +33,10 @@ yarn add fast-pivot
 
 使用组件
 ```js
-import MagicCube from 'fast-pivot';
+import { PivotChart } from 'fast-pivot';
 
 function App () {
-  return <MagicCube
+  return <PivotChart
     visType={visType}
     dataSource={data}
     rows={rows}
@@ -50,29 +50,28 @@ function App () {
 ```js
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
-import { mockData, getTitanicData } from './mock';
-import { DataSource, VisType } from '../src/common';
-import MagicCube, { ToolBar } from '../src/index';
-import DragableFields, { DraggableFieldState } from '../src/dragableFields/index';
-import { sum, count, mean } from 'cube-core';
+import { getTitanicData } from './mock';
+import { ToolBar, PivotTable, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState } from '../src/index';
+
+const { sum, count, mean } = Aggregators;
 const aggregatorMapper = { sum, count, mean } as const;
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
+
 const initDraggableState: DraggableFieldState = {
   fields: [],
   rows: [],
   columns: [],
   measures: []
 };
+
 function App () {
   const [data, setData] = useState<DataSource>([]);
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
   useEffect(() => {
-    console.log({ dataSource, dimensions, measures })
     setData(dataSource);
   }, [])
-  console.log(fstate)
   const measures = useMemo(() => fstate['measures'].map(f => ({
     ...f,
     aggregator: aggregatorMapper[(f.aggName || 'sum') as keyof typeof aggregatorMapper]
@@ -80,7 +79,7 @@ function App () {
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
-    <MagicCube visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+    <PivotTable visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }
 

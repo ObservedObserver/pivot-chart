@@ -1,4 +1,4 @@
-import React, { useEffect, useState, ReactNode } from 'react';
+import React, { ReactNode } from 'react';
 import VegaChart from './charts/vegaChart';
 
 import { Record, VisType } from './common';

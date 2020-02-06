@@ -14,8 +14,17 @@ export interface NestTree {
 }
 
 export interface Field {
+  /**
+   * id: key in data record
+   */
   id: string;
+  /**
+   * display name for field
+   */
   name: string;
+  /**
+   * aggregator's name
+   */
   aggName?: string;
   [key: string]: any;
 }
@@ -25,3 +34,6 @@ export interface Measure extends Field {
 }
 
 export type VisType = 'number' | 'bar' | 'line' | 'scatter';
+export {
+  AggFC
+}
