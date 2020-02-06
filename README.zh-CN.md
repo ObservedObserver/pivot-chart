@@ -4,17 +4,14 @@
 ![](https://img.shields.io/npm/v/pivot-chart)
 ![](https://img.shields.io/github/license/ObservedObserver/pivot-chart)
 
-pivot chart is a an extension data visualization type of pivot table. It allows user to observe the data in different chart type without limited to table and pure numbers.
 
 数据透视图是数据透视表的增强拓展形式。其使得数据透视表数据展示的形式不再限于单纯的数字，使得用户可以同时拥有数据透视(旋转、切片、下钻、上卷)与可视化图表的能力。
 
-pivot chart also provide with basic pivot table components for you to build your web apps, you can regard pivot table as a member in the subset of pivot charts. pivot chart is build based on [cube-core](https://github.com/ObservedObserver/cube-core): an MOLAP cube solution in js.
-
-数据透视图也为你提供了基本的数据透视表组件。事实上，数据透视表是数据透视图的一种特殊情况，所以你也可以直接使用数据透视图来构建你的数据透视表组件。
+数据透视图也为你提供了基本的数据透视表组件。事实上，数据透视表是数据透视图的一种特殊情况，所以你也可以直接使用数据透视图来构建你的数据透视表组件。pivot-chart是基于[cube-core](https://github.com/ObservedObserver/cube-core)提供的前端cube计算能力搭建的。
 
 ## Demo
 
-| feature | demo(gif) |
+| 功能 | demo(gif) |
 | - | - |
 | 基本的nest/cross透视表(可展开、旋转) | ![basic expandable nest/cross table.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-basic.gif) |
 | 自定义度量的聚合方式 | ![ustom aggregator of measures.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-aggregator.gif) |
