@@ -5,9 +5,10 @@ import { sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import { Node } from 'cube-core/built/core/momentCube';
 import { VisType } from './common';
-const RootName = 'ALL';
+import { getTheme } from './theme';
+const theme = getTheme();
 export function useNestTree () {
-  let [nestTree, setNestTree] = useState<NestTree>({ id: RootName, path: [] });
+  let [nestTree, setNestTree] = useState<NestTree>({ id: theme.root.label, path: [] });
   const repaint = useCallback((path: number[]) => {
     setNestTree(tree => {
       const newTree = produce(tree, draft => {
@@ -45,7 +46,7 @@ function insertNode (tree: HashTree, dimensions: string[], record: Record, depth
 }
 
 function transHashTree2NestTree (hasTree: HashTree) {
-  let tree: NestTree = { id: RootName };
+  let tree: NestTree = { id: theme.root.label };
   transHashDFS(hasTree, tree);
   return tree;
 }

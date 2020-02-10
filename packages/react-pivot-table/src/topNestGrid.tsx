@@ -3,6 +3,9 @@ import deepcopy from "deepcopy";
 import { useNestTree, transTree2LeafPathList } from "./utils";
 import { NestTree } from "./common";
 import ExpandButton from "./components/expandButton";
+import { getTheme } from "./theme";
+
+const theme = getTheme();
 
 interface TopNestGridProps {
   data: NestTree;
@@ -10,21 +13,22 @@ interface TopNestGridProps {
   measures: string[];
   onSizeChange?: (width: number, height: number) => void;
   onExpandChange?: (lpList: string[][]) => void;
+  defaultExpandedDepth: number;
 }
 
-function dfs(tree: NestTree) {
-  tree.expanded = true;
+function dfs(tree: NestTree, defaultExpandedDepth: number, depth: number) {
+  tree.expanded = (depth < defaultExpandedDepth);
   tree.path ? null : (tree.path = []);
   if (tree.children && tree.children.length > 0) {
     tree.children.forEach((child, index) => {
       child.path = [...(tree.path || []), index];
-      dfs(child);
+      dfs(child, defaultExpandedDepth, depth + 1);
     });
   }
 }
-function tree2renderTree(tree: NestTree) {
+function tree2renderTree(tree: NestTree, defaultExpandedDepth: number) {
   let renderTree = deepcopy(tree);
-  dfs(renderTree);
+  dfs(renderTree, defaultExpandedDepth, 0);
   return renderTree;
 }
 
@@ -53,7 +57,7 @@ function dfsRender(
         colSpan={measures.length}
         rowSpan={rows.length - depth - 1}
       >
-        {tree.id}(total)
+        {tree.id}{theme.summary.label}
       </th>
     );
     rows[depth].push(
@@ -98,14 +102,14 @@ function dfsRender(
 }
 
 const TopNestGrid: React.FC<TopNestGridProps> = props => {
-  let { data, depth, measures, onSizeChange, onExpandChange } = props;
+  let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth } = props;
   const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
 
   useEffect(() => {
-    let newTree = tree2renderTree(data);
+    let newTree = tree2renderTree(data, defaultExpandedDepth);
     setNestTree(newTree);
-  }, [data]);
+  }, [data, defaultExpandedDepth]);
 
   const renderTree = useMemo<ReactNodeArray[]>(() => {
     let ans: ReactNodeArray[] = [];

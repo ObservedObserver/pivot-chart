@@ -2,6 +2,7 @@ import PivotTable from './pivotChart';
 import ToolBar from './components/toolbar';
 import DragableFields, { DraggableFieldState } from './dragableFields/index';
 import  { StyledTable } from './components/styledTable';
+import * as Theme from './theme';
 import { setAutoFreeze } from 'immer';
 
 setAutoFreeze(false);
@@ -18,5 +19,6 @@ export {
   StyledTable,
   PivotTable,
   ToolBar,
-  DragableFields
+  DragableFields,
+  Theme
 }

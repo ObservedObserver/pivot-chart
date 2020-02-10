@@ -43,15 +43,26 @@ function App () {
 }
 ```
 
+自定义主题/配置
+```js
+Theme.registerTheme({
+  root: {
+    display: true,
+    label: 'root'
+  },
+  summary: {
+    label: '(total)'
+  }
+})
+```
+
 一个完整的demo:
 ```js
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { getTitanicData } from './mock';
-import { ToolBar, PivotTable, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState } from '../src/index';
+import { ToolBar, PivotTable, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../src/index';
 
-const { sum, count, mean } = Aggregators;
-const aggregatorMapper = { sum, count, mean } as const;
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
 
@@ -62,16 +73,28 @@ const initDraggableState: DraggableFieldState = {
   measures: []
 };
 
+Theme.registerTheme({
+  root: {
+    display: true,
+    label: 'root'
+  },
+  summary: {
+    label: '(total)'
+  }
+})
+
 function App () {
   const [data, setData] = useState<DataSource>([]);
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
   useEffect(() => {
+    console.log({ dataSource, dimensions, measures })
     setData(dataSource);
   }, [])
+  console.log(fstate)
   const measures = useMemo(() => fstate['measures'].map(f => ({
     ...f,
-    aggregator: aggregatorMapper[(f.aggName || 'sum') as keyof typeof aggregatorMapper]
+    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators]
   })), [fstate['measures']]);
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />

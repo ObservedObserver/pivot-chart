@@ -15,6 +15,10 @@ interface PivotChartProps {
   columns: Field[];
   measures: Measure[];
   visType?: VisType;
+  defaultExpandedDepth?: {
+    rowDepth: number;
+    columnDepth: number;
+  }
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -28,8 +32,16 @@ const PivotChart: React.FC<PivotChartProps> = props => {
     columns: columnList = [],
     measures: measureList = [],
     dataSource = [],
-    visType = 'number'
+    visType = 'number',
+    defaultExpandedDepth = {
+      rowDepth: 1,
+      columnDepth: 1
+    }
   } = props;
+  const {
+    rowDepth: defaultRowDepth = 1,
+    columnDepth: defaultColumnDepth = 1
+  } = defaultExpandedDepth;
   const cubeRef = useRef<momentCube>();
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
@@ -84,6 +96,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
             style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}
           ></div>
           <LeftNestGrid
+            defaultExpandedDepth={defaultRowDepth}
             visType={visType}
             depth={nestRows.length}
             data={leftNestTree}
@@ -94,6 +107,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
         </div>
         <StyledTable>
           <TopNestGrid
+            defaultExpandedDepth={defaultColumnDepth}
             depth={nestColumns.length}
             measures={measures}
             data={topNestTree}
