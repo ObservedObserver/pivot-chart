@@ -27,7 +27,6 @@ function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure:
 }
 const CrossTable: React.FC<CrossTableProps> = props => {
   const { matrix, measures, dimensionsInView, measuresInView, visType } = props;
-  console.log(matrix)
   return (
     <tbody className="vis">
       {matrix.map((row, rIndex) => {

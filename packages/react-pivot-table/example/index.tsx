@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { getTitanicData } from './mock';
-import { ToolBar, PivotTable, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../src/index';
+import { ToolBar, PivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../src/index';
 
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
@@ -39,7 +39,7 @@ function App () {
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
-    <PivotTable visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+    <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }
 

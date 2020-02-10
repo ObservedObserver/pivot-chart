@@ -1,6 +1,6 @@
 {
   "name": "fast-pivot-table",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "implementation of high performance pivot table in web.",
   "main": "index.js",
   "scripts": {

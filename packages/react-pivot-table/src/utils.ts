@@ -64,7 +64,6 @@ function transHashDFS (hashNode: HashTree, node: NestTree) {
 }
 
 export function transTree2LeafPathList (tree: NestTree): string[][] {
-  console.log('nestTree', tree)
   let lpList: string[][] = [];
   // 根左右序
   const dfs = (node: NestTree, path: string[]) => {

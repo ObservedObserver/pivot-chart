@@ -65,3 +65,32 @@ export function mockTreeData (depth: number = 3): TreeData {
   dfs(data, 0);
   return data;
 }
+
+let dimRange: [number, number] = [0, 5];
+let meaRange: [number, number] = [0, 100];
+export function makeData (D: number, M: number, S: number): DataDemo {
+    let dimensions: string[] = [];
+    let measures: string[] = [];
+    let dataSource: DataSource = [];
+    for (let i = 0; i < D; i++) {
+        dimensions.push(`dim-${i}`);
+    }
+    for (let i = 0; i < M; i++) {
+        measures.push(`mea-${i}`);
+    }
+    for (let i = 0; i < S; i++) {
+        let record: Record = {};
+        dimensions.forEach(dim => {
+            record[dim] = (Math.random() * (dimRange[1] - dimRange[0]) + dimRange[0]).toFixed(0);
+        });
+        measures.forEach(mea => {
+            record[mea] = Math.round(Math.random() * (meaRange[1] - meaRange[0]) + meaRange[0]);
+        });
+        dataSource.push(record);
+    }
+    return {
+      dataSource,
+      dimensions,
+      measures
+    };
+}

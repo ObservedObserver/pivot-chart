@@ -34,7 +34,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
     dataSource = [],
     visType = 'number',
     defaultExpandedDepth = {
-      rowDepth: 1,
+      rowDepth: 0,
       columnDepth: 1
     }
   } = props;
@@ -112,7 +112,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
             measures={measures}
             data={topNestTree}
             onSizeChange={(w, h) => {
-              setEmptyGridHeight(h + 2);
+              setEmptyGridHeight(h);
             }}
             onExpandChange={lpList => {
               setColumnLPList(lpList);

@@ -1,4 +1,4 @@
-import PivotTable from './pivotChart';
+import PivotChart from './pivotChart';
 import ToolBar from './components/toolbar';
 import DragableFields, { DraggableFieldState } from './dragableFields/index';
 import  { StyledTable } from './components/styledTable';
@@ -17,7 +17,7 @@ export {
 }
 export {
   StyledTable,
-  PivotTable,
+  PivotChart,
   ToolBar,
   DragableFields,
   Theme

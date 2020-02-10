@@ -132,8 +132,8 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
   useEffect(() => {
     if (onSizeChange) {
       const style = window.getComputedStyle(container.current, null);
-      const width = parseInt(style.getPropertyValue("width"));
-      const height = parseInt(style.getPropertyValue("height"));
+      const width = container.current.offsetWidth;
+      const height = container.current.offsetHeight;
       onSizeChange(width, height);
     }
   });
