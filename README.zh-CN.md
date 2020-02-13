@@ -61,7 +61,7 @@ Theme.registerTheme({
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { getTitanicData } from './mock';
-import { ToolBar, PivotTable, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../src/index';
+import { ToolBar, PivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../src/index';
 
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
@@ -99,7 +99,7 @@ function App () {
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
-    <PivotTable visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+    <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }
 
@@ -109,6 +109,23 @@ ReactDOM.render(<App />, document.getElementById('root'))
 你也可以将上面👆的demo在本地运行
 ```
 npm run dev
+```
+
+## API
+```js
+interface PivotChartProps {
+  dataSource: DataSource;
+  rows: Field[];
+  columns: Field[];
+  measures: Measure[];
+  visType?: VisType;
+  defaultExpandedDepth?: {
+    rowDepth: number;
+    columnDepth: number;
+  };
+  async?: false;
+  cubeQuery?: (path: QueryPath) => Promise<DataSource>;
+}
 ```
 
 ## 其他碎碎念

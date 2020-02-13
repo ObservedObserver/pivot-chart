@@ -89,7 +89,7 @@ export type QueryPath = QueryNode[];
  * @param cubeDimensions 
  * @param measures 
  */
-export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: string[], measures: Measure[]): DataSource {
+export function queryCube(cube: momentCube, path: QueryPath, cubeDimensions: string[]): DataSource {
   let tree = cube.tree;
   let queryPath: QueryPath = [];
   for (let dim of cubeDimensions) {
@@ -169,7 +169,44 @@ export function getCossMatrix(visType: VisType, cube: momentCube, rowLPList: str
           dimValue: d
         }))
       ]
-      let result = queryCube(cube, path, dimensions, measures);
+      let result = queryCube(cube, path, dimensions);
+      switch (visType) {
+        case 'bar':
+        case 'line':
+          crossMatrix[i].push(aggregateOnGroupBy(result, dimensionsInView, measures));
+          break;
+        case 'scatter':
+          crossMatrix[i].push(result);
+          break;
+        case 'number':
+        default:
+          crossMatrix[i].push(aggregateAll(result, measures));
+          break;
+      }
+    }
+  }
+  return crossMatrix;
+}
+// todo: 确定异步请求的结果复用
+// 即一个请求可以获得哪些cell，尽量用做少的请求去完成一个matrix的计算，同时进行缓存
+export async function requestCossMatrix(asyncCubeQuery: (path: QueryPath) => Promise<DataSource>, visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
+  const rowLen = rowLPList.length;
+  const columnLen = columnLPList.length;
+  let crossMatrix: Array<Array<Record>> = [];
+  for (let i = 0; i < rowLen; i++) {
+    crossMatrix.push([])
+    for (let j = 0; j < columnLen; j++) {
+      let path: QueryPath = [
+        ...rowLPList[i].map((d, i) => ({
+          dimCode: rows[i],
+          dimValue: d
+        })),
+        ...columnLPList[j].map((d, i) => ({
+          dimCode: columns[i],
+          dimValue: d
+        }))
+      ]
+      let result = await asyncCubeQuery(path);
       switch (visType) {
         case 'bar':
         case 'line':

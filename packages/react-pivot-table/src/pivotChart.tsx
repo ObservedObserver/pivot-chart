@@ -5,7 +5,7 @@ import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
-import { getPureNestTree, getCossMatrix, getNestFields } from './utils';
+import { getPureNestTree, getCossMatrix, getNestFields, QueryPath } from './utils';
 import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
 
 
@@ -18,7 +18,9 @@ interface PivotChartProps {
   defaultExpandedDepth?: {
     rowDepth: number;
     columnDepth: number;
-  }
+  };
+  async?: false;
+  cubeQuery?: (path: QueryPath) => Promise<DataSource>;
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
