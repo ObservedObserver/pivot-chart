@@ -15,5 +15,5 @@
     "typeRoots": ["node_modules/@types"] 
   },
   "exclude": [ "node_modules", "functions" ],
-  "include": ["./src/**/*"]
+  "include": ["./src/**/*", "./example/**/*"]
 }

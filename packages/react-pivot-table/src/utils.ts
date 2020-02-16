@@ -6,6 +6,7 @@ import { momentCube } from 'cube-core/built/core';
 import { Node } from 'cube-core/built/core/momentCube';
 import { VisType } from './common';
 import { getTheme } from './theme';
+import { DynamicCube, Cuboid } from './cube';
 const theme = getTheme();
 export function useNestTree () {
   let [nestTree, setNestTree] = useState<NestTree>({ id: theme.root.label, path: [] });
@@ -291,4 +292,97 @@ export function aggregateOnGroupBy(dataSource: DataSource, fields: string[], mea
     data.push(record)
   }
   return data;
+}
+
+type cmpFunc = (a: string, b: string) => number;
+export class AsyncCacheCube {
+  private dynamicCube: DynamicCube;
+  private dimensions: string[];
+  private asyncCubeQuery: (path: QueryPath) => Promise<DataSource>;
+  // private measures: string
+  private dimCompare: cmpFunc = (a: string, b: string) => {
+    if (a > b) return 1;
+    if (a === b) return 0;
+    if (a < b) return -1;
+  }
+  constructor (props: { dimensions?: string[]; cmp?: cmpFunc; asyncCubeQuery: (path: QueryPath) => Promise<DataSource>; }) {
+    const { dimensions, cmp, asyncCubeQuery } = props;
+    if (cmp) {
+      this.dimCompare = cmp;
+    } 
+    // this.dimensions = [...dimensions].sort(cmp);
+    this.dynamicCube = new DynamicCube({ computeCuboid: asyncCubeQuery });
+    this.asyncCubeQuery = asyncCubeQuery;
+  }
+  // public appendDimension(dimension: string) {
+  //   let i = 0;
+  //   for (; i < this.dimensions.length; i++) {
+  //     let cmp = this.dimCompare(dimension, this.dimensions[i]);
+  //     if (cmp === 1) {
+  //       break;
+  //     } else if (cmp === 0) {
+  //       return;
+  //     }
+  //   }
+  //   this.dimensions.splice(i, 1, dimension);
+  // }
+  // public deleteDimension(dimension: string) {
+  //   for (let i = 0; i < this.dimensions.length; i++) {
+  //     let cmp = this.dimCompare(dimension, this.dimensions[i]);
+  //     if (cmp === 0) {
+  //       this.dimensions.splice(i, 1);
+  //       break;
+  //     }
+  //   }
+  // }
+  // private encode (values: string[]): string {
+  //   return values.join('-');
+  // }
+  public async cacheQuery (originPath: QueryPath): Promise<DataSource> {
+    const path: QueryPath = [...originPath].sort((a, b) => this.dimCompare(a.dimCode, b.dimCode));
+    const cuboidKey = path.map(p => p.dimCode);
+    const cuboid = await this.dynamicCube.getCuboid(cuboidKey);
+    return cuboid.get(path);
+  }
+  public async getCuboidNestTree (originPathCode: string[]): Promise<NestTree> {
+    console.log('nest path', originPathCode);
+    const path: string[] = [...originPathCode].sort(this.dimCompare);
+    const cuboid = await this.dynamicCube.getCuboid(path);
+    return cuboid.getNestTree();
+  }
+  async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
+    console.log('running in async', rowLPList, columnLPList, rows, columns)
+    const rowLen = rowLPList.length;
+    const columnLen = columnLPList.length;
+    let crossMatrix: Array<Array<Record>> = [];
+    for (let i = 0; i < rowLen; i++) {
+      crossMatrix.push([])
+      for (let j = 0; j < columnLen; j++) {
+        let path: QueryPath = [
+          ...rowLPList[i].map((d, i) => ({
+            dimCode: rows[i],
+            dimValue: d
+          })),
+          ...columnLPList[j].map((d, i) => ({
+            dimCode: columns[i],
+            dimValue: d
+          }))
+        ]
+        console.log('matrix path', { path, rowLPList, columnLPList })
+        let result = await this.cacheQuery(path);
+        switch (visType) {
+          case 'bar':
+          case 'line':
+          case 'scatter':
+            crossMatrix[i].push(result);
+            break;
+          case 'number':
+          default:
+            crossMatrix[i].push(result[0]);
+            break;
+        }
+      }
+    }
+    return crossMatrix;
+  }
 }

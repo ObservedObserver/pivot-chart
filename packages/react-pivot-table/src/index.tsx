@@ -1,4 +1,5 @@
 import PivotChart from './pivotChart';
+import AsyncPivotChart from './asyncPivotChart';
 import ToolBar from './components/toolbar';
 import DragableFields, { DraggableFieldState } from './dragableFields/index';
 import  { StyledTable } from './components/styledTable';
@@ -18,6 +19,7 @@ export {
 export {
   StyledTable,
   PivotChart,
+  AsyncPivotChart,
   ToolBar,
   DragableFields,
   Theme
