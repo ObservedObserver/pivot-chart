@@ -84,7 +84,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   const [topNestTree, setTopNestTree] = useState<NestTree>({ id: 'root' });
   useEffect(() => {
     asyncCubeRef.current.getCuboidNestTree(nestRows).then(tree => {
-      console.log('nest callback tree', tree)
       setLeftNestTree(tree);
     })
   }, [nestRows]);
@@ -93,7 +92,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       setTopNestTree(tree);
     })
   }, [nestColumns]);
-  console.log('nestTree', leftNestTree, topNestTree)
   // const topNestTree = useMemo<NestTree>(() => {
   //   // return getPureNestTree(dataSource, nestColumns);
   // }, [nestColumns]);
@@ -107,7 +105,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       setCrossMatrix(matrix);
     })
   }, [rows, columns, measures, rowLPList, columnLPList, visType])
-  console.log(asyncCubeRef.current)
   return (
     <div
       style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: "auto" }}

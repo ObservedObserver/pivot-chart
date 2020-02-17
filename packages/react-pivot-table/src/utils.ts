@@ -345,13 +345,11 @@ export class AsyncCacheCube {
     return cuboid.get(path);
   }
   public async getCuboidNestTree (originPathCode: string[]): Promise<NestTree> {
-    console.log('nest path', originPathCode);
     const path: string[] = [...originPathCode].sort(this.dimCompare);
     const cuboid = await this.dynamicCube.getCuboid(path);
     return cuboid.getNestTree();
   }
   async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
-    console.log('running in async', rowLPList, columnLPList, rows, columns)
     const rowLen = rowLPList.length;
     const columnLen = columnLPList.length;
     let crossMatrix: Array<Array<Record>> = [];
@@ -368,7 +366,6 @@ export class AsyncCacheCube {
             dimValue: d
           }))
         ]
-        console.log('matrix path', { path, rowLPList, columnLPList })
         let result = await this.cacheQuery(path);
         switch (visType) {
           case 'bar':

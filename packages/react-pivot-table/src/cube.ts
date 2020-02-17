@@ -13,19 +13,19 @@ export class Cuboid {
     const { dimensions, dataSource } = props;
     this.dimensions = dimensions;
     this.tree = new Map();
-    console.error('new cuboid', dimensions, dataSource);
     this.buildCuboid(dataSource);
   }
   private insertNode (node: CuboidNode, record: Record, depth: number) {
     let dim = this.dimensions[depth];
+    let dimValue = record[dim] || '';
     if (depth >= this.dimensions.length - 1) {
-      node.set(record[dim], record);
+      node.set(dimValue, record);
       return;
     }
-    if (!node.has(record[dim])) {
-      node.set(record[dim], new Map());
+    if (!node.has(dimValue)) {
+      node.set(dimValue, new Map());
     }
-    this.insertNode(node.get(record[dim]) as CuboidNode, record, depth + 1);
+    this.insertNode(node.get(dimValue) as CuboidNode, record, depth + 1);
   }
   private transCuboidDFS (hashNode: CuboidNode, node: NestTree, depth: number) {
     if (depth === this.dimensions.length) {
@@ -40,7 +40,6 @@ export class Cuboid {
   }
   public getNestTree () {
     let nestTree: NestTree = { id: theme.root.label };
-    console.error('tree', this.tree)
     this.transCuboidDFS(this.tree, nestTree, 0);
     return nestTree;
   }
@@ -59,10 +58,10 @@ export class Cuboid {
     return this.query(this.tree, adjustPath, 0);
   }
   private query (node: CuboidNode, path: string[], depth: number): Record[] {
-    if (depth >= this.dimensions.length) return [];
-    if (depth === this.dimensions.length - 1) {
-      if (path[depth] === '*') return [...node.values()];
-      return node.has(path[depth]) ? [node.get(path[depth])] : [];
+    if (depth >= this.dimensions.length - 1) {
+      let value = path[depth] || '';
+      if (value === '*') return [...node.values()];
+      return node.has(value) ? [node.get(value)] : [];
     }
     let children: Record[] = [];
     for (let child of node) {
@@ -99,7 +98,6 @@ export class DynamicCube {
       dataSource: cuboidDataSource
     });
     this.cuboids.set(key, cuboid);
-    console.log('getCuboid', dimSet, cuboidDataSource, cuboid)
     return cuboid;
   }
 }

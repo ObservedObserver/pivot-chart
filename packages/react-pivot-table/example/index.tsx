@@ -28,10 +28,8 @@ function App () {
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
   useEffect(() => {
-    console.log({ dataSource, dimensions, measures })
     setData(dataSource);
   }, [])
-  console.log(fstate)
   const measures = useMemo(() => fstate['measures'].map(f => ({
     ...f,
     aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators]
