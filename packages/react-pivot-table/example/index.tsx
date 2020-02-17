@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { getTitanicData } from './mock';
-import { ToolBar, PivotChart, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../src/index';
+import { ToolBar, PivotChart, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme } from '../build/index';
 import { TitanicCubeService } from './service';
 const { dataSource, dimensions, measures } = getTitanicData();
 const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
@@ -38,7 +38,7 @@ function App () {
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
     {/* <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} /> */}
-    <AsyncPivotChart
+    {/* <AsyncPivotChart
       visType={visType}
       rows={fstate['rows']}
       columns={fstate['columns']}
@@ -46,7 +46,21 @@ function App () {
       cubeQuery={async (path) => {
         return TitanicCubeService(path.map(p => p.dimCode), measures.map(m => m.id));
       }}
-      measures={measures} />
+      measures={measures} /> */}
+       <AsyncPivotChart
+      measures={[{ id: 'Survived', name: 'survived', aggName: 'sum' }]}
+      rows={[{ id: 'Embarked', name: 'embarked' }]}
+      columns={[{ id: 'Sex', name: 'sex' }]}
+      visType="number"
+      async
+      cubeQuery={async (path, measures) => {
+        return TitanicCubeService(path.map(p => p.dimCode), measures);
+      }}
+      defaultExpandedDepth={{
+        rowDepth: 1,
+        columnDepth: 1
+      }}
+    />
   </div>
 }
 

@@ -22,17 +22,7 @@ function aggregate(dataSource: DataSource, dimensions: string[], measures: strin
 export function TitanicCubeService (dimensions: string[], measures: string[]): Promise<any[]> {
   return new Promise((resolve, reject) => {
     try {
-      // if (measures.length > 0) {
-      //   const result = aggregate(
-      //     dataSource,
-      //     dimensions,
-      //     measures,
-      //   );
-      //   console.log('service', dimensions, measures, result)
-      //   resolve(result);
-      // } else {
-      //   resolve([])
-      // }
+      console.log('[service]', dimensions, measures)
       const result = aggregate(
         dataSource,
         dimensions,

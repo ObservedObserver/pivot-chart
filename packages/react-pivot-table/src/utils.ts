@@ -298,14 +298,14 @@ type cmpFunc = (a: string, b: string) => number;
 export class AsyncCacheCube {
   private dynamicCube: DynamicCube;
   private dimensions: string[];
-  private asyncCubeQuery: (path: QueryPath) => Promise<DataSource>;
+  private asyncCubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
   // private measures: string
   private dimCompare: cmpFunc = (a: string, b: string) => {
     if (a > b) return 1;
     if (a === b) return 0;
     if (a < b) return -1;
   }
-  constructor (props: { dimensions?: string[]; cmp?: cmpFunc; asyncCubeQuery: (path: QueryPath) => Promise<DataSource>; }) {
+  constructor (props: { dimensions?: string[]; cmp?: cmpFunc; asyncCubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>; }) {
     const { dimensions, cmp, asyncCubeQuery } = props;
     if (cmp) {
       this.dimCompare = cmp;
@@ -338,21 +338,22 @@ export class AsyncCacheCube {
   // private encode (values: string[]): string {
   //   return values.join('-');
   // }
-  public async cacheQuery (originPath: QueryPath): Promise<DataSource> {
+  public async cacheQuery (originPath: QueryPath, measures: string[]): Promise<DataSource> {
     const path: QueryPath = [...originPath].sort((a, b) => this.dimCompare(a.dimCode, b.dimCode));
     const cuboidKey = path.map(p => p.dimCode);
-    const cuboid = await this.dynamicCube.getCuboid(cuboidKey);
+    const cuboid = await this.dynamicCube.getCuboid(cuboidKey, measures);
     return cuboid.get(path);
   }
   public async getCuboidNestTree (originPathCode: string[]): Promise<NestTree> {
     const path: string[] = [...originPathCode].sort(this.dimCompare);
-    const cuboid = await this.dynamicCube.getCuboid(path);
+    const cuboid = await this.dynamicCube.getCuboid(path, []);
     return cuboid.getNestTree();
   }
   async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
     const rowLen = rowLPList.length;
     const columnLen = columnLPList.length;
     let crossMatrix: Array<Array<Record>> = [];
+    let measureCodeList = measures.map(m => m.id);
     for (let i = 0; i < rowLen; i++) {
       crossMatrix.push([])
       for (let j = 0; j < columnLen; j++) {
@@ -372,7 +373,7 @@ export class AsyncCacheCube {
             dimValue: '*'
           });
         }
-        let result = await this.cacheQuery(path);
+        let result = await this.cacheQuery(path, measureCodeList);
         switch (visType) {
           case 'bar':
           case 'line':

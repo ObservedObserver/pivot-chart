@@ -19,7 +19,7 @@ interface AsyncPivotChartProps {
     columnDepth: number;
   };
   async?: boolean;
-  cubeQuery: (path: QueryPath) => Promise<DataSource>;
+  cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -102,7 +102,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   const [crossMatrix, setCrossMatrix] = useState<Record[][] | Record[][][]>([]);
   useEffect(() => {
     asyncCubeRef.current.requestCossMatrix(visType, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView).then(matrix => {
-      console.log(matrix)
       setCrossMatrix(matrix);
     })
   }, [rows, columns, measures, rowLPList, columnLPList, visType])

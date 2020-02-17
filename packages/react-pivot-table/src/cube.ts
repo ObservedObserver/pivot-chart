@@ -75,13 +75,13 @@ export class Cuboid {
 }
 // todo query path support array
 export class DynamicCube {
-  private computeCuboid: (path: QueryPath) => Promise<DataSource>;
+  private computeCuboid: (path: QueryPath, measures: string[]) => Promise<DataSource>;
   private cuboids: Map<string, Cuboid>;
-  constructor (props: { computeCuboid: (path: QueryPath) => Promise<DataSource> }) {
+  constructor (props: { computeCuboid: (path: QueryPath, measures: string[]) => Promise<DataSource> }) {
     this.computeCuboid = props.computeCuboid;
     this.cuboids = new Map();
   }
-  public async getCuboid (dimSet: string[]): Promise<Cuboid> {
+  public async getCuboid (dimSet: string[], measures: string[]): Promise<Cuboid> {
     const key = dimSet.join(';');
     if (this.cuboids.has(key)) {
       return this.cuboids.get(key);
@@ -92,7 +92,7 @@ export class DynamicCube {
         dimValue: '*'
       }
     });
-    const cuboidDataSource = await this.computeCuboid(path);
+    const cuboidDataSource = await this.computeCuboid(path, measures);
     const cuboid = new Cuboid({
       dimensions: dimSet,
       dataSource: cuboidDataSource
