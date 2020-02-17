@@ -102,6 +102,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   const [crossMatrix, setCrossMatrix] = useState<Record[][] | Record[][][]>([]);
   useEffect(() => {
     asyncCubeRef.current.requestCossMatrix(visType, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView).then(matrix => {
+      console.log(matrix)
       setCrossMatrix(matrix);
     })
   }, [rows, columns, measures, rowLPList, columnLPList, visType])

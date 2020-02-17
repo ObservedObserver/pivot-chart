@@ -38,6 +38,7 @@ export function TitanicCubeService (dimensions: string[], measures: string[]): P
         dimensions,
         measures,
       );
+      console.log('[service]', result)
       resolve(result);
     } catch (error) {
       reject(error);

@@ -366,6 +366,12 @@ export class AsyncCacheCube {
             dimValue: d
           }))
         ]
+        for (let i = 0; i < dimensionsInView.length; i++) {
+          path.push({
+            dimCode: dimensionsInView[i],
+            dimValue: '*'
+          });
+        }
         let result = await this.cacheQuery(path);
         switch (visType) {
           case 'bar':
