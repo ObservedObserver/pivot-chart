@@ -1,4 +1,4 @@
-import { Record, DataSource, NestTree } from "./common";
+import { Record, DataSource, NestTree, Filter } from "./common";
 import { QueryPath } from './utils';
 import { getTheme } from './theme';
 const theme = getTheme();
@@ -7,11 +7,13 @@ interface CuboidNode extends Map<string, CuboidNode | Record> {};
 
 export class Cuboid {
   public readonly dimensions: string[];
+  public readonly dataSource: DataSource;
   // public readonly measures: string[];
   private tree: CuboidNode;
   constructor (props: { dimensions: string[]; dataSource: DataSource }) {
     const { dimensions, dataSource } = props;
     this.dimensions = dimensions;
+    this.dataSource = dataSource;
     this.tree = new Map();
     this.buildCuboid(dataSource);
   }
@@ -27,22 +29,7 @@ export class Cuboid {
     }
     this.insertNode(node.get(dimValue) as CuboidNode, record, depth + 1);
   }
-  private transCuboidDFS (hashNode: CuboidNode, node: NestTree, depth: number) {
-    if (depth === this.dimensions.length) {
-      return;
-    }
-    node.children = []
-    for (let child of hashNode) {
-      let childInNode: NestTree = { id: child[0] };
-      this.transCuboidDFS(child[1] as CuboidNode, childInNode, depth + 1)
-      node.children.push(childInNode);
-    }
-  }
-  public getNestTree () {
-    let nestTree: NestTree = { id: theme.root.label };
-    this.transCuboidDFS(this.tree, nestTree, 0);
-    return nestTree;
-  }
+
   public buildCuboid (dataSource: DataSource) {
     let len = dataSource.length;
     for (let i = 0; i < len; i++) {

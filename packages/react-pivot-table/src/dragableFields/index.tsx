@@ -162,7 +162,7 @@ const DraggableFields: React.FC<DraggableFieldsProps> = props => {
         draggableStateKeys.map(dkey => <FieldListContainer name={dkey} key={dkey}>
           <Droppable droppableId={dkey} direction="horizontal">
             {
-              (provided, snapshot) => <FieldsContainer
+              (provided, snapshot) => <FieldsContainer  
                   {...provided.droppableProps}
                   ref={provided.innerRef}
                 >
@@ -181,7 +181,7 @@ const DraggableFields: React.FC<DraggableFieldsProps> = props => {
                           value={f.aggName}
                           onChange={(value) => {
                             setState(state => {
-                              const nextState = produce(state, draft => {
+                              const nextState = produce<DraggableFieldState>(state, draft => {
                                 draft[dkey][index].aggName = value
                               });
                               return nextState;

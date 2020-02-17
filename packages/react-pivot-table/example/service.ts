@@ -19,18 +19,19 @@ function aggregate(dataSource: DataSource, dimensions: string[], measures: strin
   }
   return [...map.values()];
 }
-export function TitanicCubeService (dimensions: string[], measures: string[]): Promise<any[]> {
+export function TitanicCubeService (dimensions: string[], meaList: string[]): Promise<any[]> {
   return new Promise((resolve, reject) => {
     try {
-      console.log('[service]', dimensions, measures)
+      console.log('[service]', dimensions)
       const result = aggregate(
         dataSource,
         dimensions,
         measures,
       );
-      console.log('[service]', result)
+      // console.log('[service]', result)
       resolve(result);
     } catch (error) {
+      console.error('error occur')
       reject(error);
     }
   });

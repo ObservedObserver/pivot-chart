@@ -1,11 +1,18 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree, Field, Measure, VisType, Record } from './common';
+import { DataSource, NestTree, Field, Measure, VisType, Record, Filter } from './common';
 import { createCube, sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
-import { getPureNestTree, getCossMatrix, getNestFields, QueryPath, AsyncCacheCube, queryCube } from './utils';
+import {
+  getPureNestTree,
+  getCossMatrix,
+  useNestFields,
+  QueryPath,
+  AsyncCacheCube,
+  queryCube
+} from "./utils";
 import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
 
 
@@ -20,6 +27,7 @@ interface AsyncPivotChartProps {
   };
   async?: boolean;
   cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
+  fakeFilters?: Filter[];
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -44,44 +52,36 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     rowDepth: defaultRowDepth = 1,
     columnDepth: defaultColumnDepth = 1
   } = defaultExpandedDepth;
-  const cubeRef = useRef<momentCube>();
   const asyncCubeRef = useRef<AsyncCacheCube>();
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
   const [columnLPList, setColumnLPList] = useState<string[][]>([]);
+  const [leftNestTree, setLeftNestTree] = useState<NestTree>({ id: 'root' });
+  const [topNestTree, setTopNestTree] = useState<NestTree>({ id: 'root' });
+  const [crossMatrix, setCrossMatrix] = useState<Record[][] | Record[][][]>([]);
   const { rows, columns, measures } = useMetaTransform(rowList, columnList, measureList);
+
   const {
     nestRows,
     nestColumns,
     dimensionsInView,
     facetMeasures,
     viewMeasures
-  } = useMemo(() => {
-    return getNestFields(visType, rows, columns, measureList)
-  }, [rows, columns, measureList, visType]);
+  } = useNestFields(visType, rows, columns, measureList);
 
   useEffect(() => {
-    const dimensions = [...rows, ...columns];
     asyncCubeRef.current = new AsyncCacheCube({
-      dimensions: dimensions,
       asyncCubeQuery: cubeQuery
-      // test
-      // asyncCubeQuery: async (path) => {
-      //   return queryCube(cubeRef.current, path, dimensions)
-      // }
     })
-  }, [rows, columns, measures])
+  }, [cubeQuery])
 
-  // {rows, columns, dimsInVis} = getNestDimensions(visType)
-  // getCell(path.concat(dimsInVis))
   const measuresInView = useMemo<string[]>(() => {
     return viewMeasures.map(m => m.id);
   }, [viewMeasures])
   const measuresInFacet = useMemo<string[]>(() => {
     return facetMeasures.map(m => m.id);
   }, [facetMeasures])
-  const [leftNestTree, setLeftNestTree] = useState<NestTree>({ id: 'root' });
-  const [topNestTree, setTopNestTree] = useState<NestTree>({ id: 'root' });
+
   useEffect(() => {
     asyncCubeRef.current.getCuboidNestTree(nestRows).then(tree => {
       setLeftNestTree(tree);
@@ -92,19 +92,13 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       setTopNestTree(tree);
     })
   }, [nestColumns]);
-  // const topNestTree = useMemo<NestTree>(() => {
-  //   // return getPureNestTree(dataSource, nestColumns);
-  // }, [nestColumns]);
 
-  // const crossMatrix = useMemo(() => {
-  //   return getCossMatrix(visType, cubeRef.current, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView);
-  // }, [dataSource, rows, columns, measures, rowLPList, columnLPList, visType])
-  const [crossMatrix, setCrossMatrix] = useState<Record[][] | Record[][][]>([]);
   useEffect(() => {
     asyncCubeRef.current.requestCossMatrix(visType, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView).then(matrix => {
       setCrossMatrix(matrix);
     })
-  }, [rows, columns, measures, rowLPList, columnLPList, visType])
+  }, [rows, columns, measures, rowLPList, columnLPList, visType, dimensionsInView, measureList])
+
   return (
     <div
       style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: "auto" }}

@@ -1,5 +1,5 @@
-import { useCallback, useState } from 'react';
-import { NestTree, DataSource, Record, Measure } from './common';
+import { useCallback, useState, useMemo } from 'react';
+import { NestTree, DataSource, Record, Measure, Filter } from './common';
 import produce from 'immer';
 import { sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
@@ -188,43 +188,6 @@ export function getCossMatrix(visType: VisType, cube: momentCube, rowLPList: str
   }
   return crossMatrix;
 }
-// todo: 确定异步请求的结果复用
-// 即一个请求可以获得哪些cell，尽量用做少的请求去完成一个matrix的计算，同时进行缓存
-export async function requestCossMatrix(asyncCubeQuery: (path: QueryPath) => Promise<DataSource>, visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
-  const rowLen = rowLPList.length;
-  const columnLen = columnLPList.length;
-  let crossMatrix: Array<Array<Record>> = [];
-  for (let i = 0; i < rowLen; i++) {
-    crossMatrix.push([])
-    for (let j = 0; j < columnLen; j++) {
-      let path: QueryPath = [
-        ...rowLPList[i].map((d, i) => ({
-          dimCode: rows[i],
-          dimValue: d
-        })),
-        ...columnLPList[j].map((d, i) => ({
-          dimCode: columns[i],
-          dimValue: d
-        }))
-      ]
-      let result = await asyncCubeQuery(path);
-      switch (visType) {
-        case 'bar':
-        case 'line':
-          crossMatrix[i].push(aggregateOnGroupBy(result, dimensionsInView, measures));
-          break;
-        case 'scatter':
-          crossMatrix[i].push(result);
-          break;
-        case 'number':
-        default:
-          crossMatrix[i].push(aggregateAll(result, measures));
-          break;
-      }
-    }
-  }
-  return crossMatrix;
-}
 
 interface NestFields {
   nestRows: string[];
@@ -268,6 +231,41 @@ export function getNestFields(visType: VisType, rows: string[], columns: string[
         facetMeasures: measures,
         viewMeasures: measures
       }
+  }
+}
+
+export function useNestFields (visType: VisType, rows: string[], columns: string[], measures: Measure[]): NestFields {
+  const nestRows = rows;
+  const { nestColumns, dimensionsInView } = useMemo(() => {
+    if (visType === 'line' || visType === 'bar') {
+      return {
+        nestColumns: columns.slice(0, -1),
+        dimensionsInView: columns.slice(-1)
+      };
+    }
+    return {
+      nestColumns: columns,
+      dimensionsInView: []
+    };
+  }, [visType, columns]);
+  const { facetMeasures, viewMeasures } = useMemo(() => {
+    if (visType === 'scatter') {
+      return {
+        facetMeasures: measures,
+        viewMeasures: measures.slice(-1)
+      }
+    }
+    return {
+      facetMeasures: measures,
+      viewMeasures: measures
+    }
+  }, [visType, measures]);
+  return {
+    nestRows,
+    nestColumns,
+    dimensionsInView,
+    facetMeasures,
+    viewMeasures
   }
 }
 
@@ -342,14 +340,15 @@ export class AsyncCacheCube {
     const path: QueryPath = [...originPath].sort((a, b) => this.dimCompare(a.dimCode, b.dimCode));
     const cuboidKey = path.map(p => p.dimCode);
     const cuboid = await this.dynamicCube.getCuboid(cuboidKey, measures);
+    console.log(cuboidKey, cuboid)
     return cuboid.get(path);
   }
   public async getCuboidNestTree (originPathCode: string[]): Promise<NestTree> {
     const path: string[] = [...originPathCode].sort(this.dimCompare);
     const cuboid = await this.dynamicCube.getCuboid(path, []);
-    return cuboid.getNestTree();
+    return getPureNestTree(cuboid.dataSource, originPathCode);
   }
-  async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
+  public async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
     const rowLen = rowLPList.length;
     const columnLen = columnLPList.length;
     let crossMatrix: Array<Array<Record>> = [];

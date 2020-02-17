@@ -37,3 +37,8 @@ export type VisType = 'number' | 'bar' | 'line' | 'scatter';
 export {
   AggFC
 }
+
+export interface Filter extends Field {
+  values: any[];
+  domain: any[];
+}
