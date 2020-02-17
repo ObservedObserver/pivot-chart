@@ -3,7 +3,7 @@ import { QueryPath } from './utils';
 import { getTheme } from './theme';
 const theme = getTheme();
 
-type CuboidNode = Map<string, CuboidNode | Record>;
+interface CuboidNode extends Map<string, CuboidNode | Record> {};
 
 export class Cuboid {
   public readonly dimensions: string[];

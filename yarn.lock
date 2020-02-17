@@ -5006,10 +5006,10 @@ ignore@^3.3.3:
   resolved "https://registry.npm.taobao.org/ignore/download/ignore-3.3.10.tgz#0a97fb876986e8081c631160f8f9f389157f0043"
   integrity sha1-Cpf7h2mG6AgcYxFg+PnziRV/AEM=
 
-immer@^5.3.2:
-  version "5.3.2"
-  resolved "https://registry.npm.taobao.org/immer/download/immer-5.3.2.tgz#e3a1c9f3550f925278fd86b8d2d644f7d5e9561b"
-  integrity sha1-46HJ81UPklJ4/Ya40tZE99XpVhs=
+immer@5.2.x:
+  version "5.2.1"
+  resolved "https://registry.npm.taobao.org/immer/download/immer-5.2.1.tgz?cache=0&sync_timestamp=1581627913116&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Fimmer%2Fdownload%2Fimmer-5.2.1.tgz#7d4f74c242178e87151d595f48db1b5c51580485"
+  integrity sha1-fU90wkIXjocVHVlfSNsbXFFYBIU=
 
 immutable@^3.7.4:
   version "3.8.2"
@@ -10121,7 +10121,7 @@ typedarray@^0.0.6:
 
 typescript@^3.7.5:
   version "3.7.5"
-  resolved "https://registry.npm.taobao.org/typescript/download/typescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
+  resolved "https://registry.npm.taobao.org/typescript/download/typescript-3.7.5.tgz?cache=0&other_urls=https%3A%2F%2Fregistry.npm.taobao.org%2Ftypescript%2Fdownload%2Ftypescript-3.7.5.tgz#0692e21f65fd4108b9330238aac11dd2e177a1ae"
   integrity sha1-BpLiH2X9QQi5MwI4qsEd0uF3oa4=
 
 ua-parser-js@^0.7.18:

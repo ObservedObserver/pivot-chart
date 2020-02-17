@@ -33,7 +33,7 @@ export function getPureNestTree (dataSource: DataSource, dimensions: string[]) {
   }
   return transHashTree2NestTree(hashTree);
 }
-type HashTree = Map<string, HashTree>;
+interface HashTree extends Map<string, HashTree> {};
 
 function insertNode (tree: HashTree, dimensions: string[], record: Record, depth: number) {
   if (depth === dimensions.length) {

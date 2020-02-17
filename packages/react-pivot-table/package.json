@@ -1,6 +1,6 @@
 {
   "name": "pivot-chart",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "pivot table react component",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
@@ -37,7 +37,7 @@
     "@types/react-beautiful-dnd": "^11.0.4",
     "cube-core": "^2.13.0",
     "deepcopy": "^2.0.0",
-    "immer": "^5.3.2",
+    "immer": "5.2.x",
     "react": "^16.12.0",
     "react-beautiful-dnd": "^12.2.0",
     "react-dom": "^16.12.0",
