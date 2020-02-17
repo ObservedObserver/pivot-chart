@@ -27,7 +27,7 @@ interface AsyncPivotChartProps {
   };
   async?: boolean;
   cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
-  fakeFilters?: Filter[];
+  branchFilters?: Filter[];
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -46,7 +46,8 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       columnDepth: 1
     },
     async,
-    cubeQuery
+    cubeQuery,
+    branchFilters
   } = props;
   const {
     rowDepth: defaultRowDepth = 1,
@@ -83,15 +84,15 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   }, [facetMeasures])
 
   useEffect(() => {
-    asyncCubeRef.current.getCuboidNestTree(nestRows).then(tree => {
+    asyncCubeRef.current.getCuboidNestTree(nestRows, branchFilters).then(tree => {
       setLeftNestTree(tree);
     })
-  }, [nestRows]);
+  }, [nestRows, branchFilters]);
   useEffect(() => {
-    asyncCubeRef.current.getCuboidNestTree(nestColumns).then(tree => {
+    asyncCubeRef.current.getCuboidNestTree(nestColumns, branchFilters).then(tree => {
       setTopNestTree(tree);
     })
-  }, [nestColumns]);
+  }, [nestColumns, branchFilters]);
 
   useEffect(() => {
     asyncCubeRef.current.requestCossMatrix(visType, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView).then(matrix => {

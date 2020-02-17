@@ -340,13 +340,19 @@ export class AsyncCacheCube {
     const path: QueryPath = [...originPath].sort((a, b) => this.dimCompare(a.dimCode, b.dimCode));
     const cuboidKey = path.map(p => p.dimCode);
     const cuboid = await this.dynamicCube.getCuboid(cuboidKey, measures);
-    console.log(cuboidKey, cuboid)
     return cuboid.get(path);
   }
-  public async getCuboidNestTree (originPathCode: string[]): Promise<NestTree> {
+  public async getCuboidNestTree (originPathCode: string[], branchFilters?: Filter[]): Promise<NestTree> {
     const path: string[] = [...originPathCode].sort(this.dimCompare);
     const cuboid = await this.dynamicCube.getCuboid(path, []);
-    return getPureNestTree(cuboid.dataSource, originPathCode);
+    let viewData = cuboid.dataSource;
+    if (branchFilters && branchFilters.every(f => originPathCode.includes(f.id))) {
+      viewData = cuboid.dataSource.filter(record => {
+        // must use == not === for key in map is string while the origin value is number, might try 
+        return branchFilters.every(f => f.values.find(v => v == record[f.id]));
+      })
+    }
+    return getPureNestTree(viewData, originPathCode);
   }
   public async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
     const rowLen = rowLPList.length;

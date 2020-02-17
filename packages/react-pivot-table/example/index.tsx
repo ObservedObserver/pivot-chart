@@ -49,14 +49,14 @@ function App () {
       rows={fstate['rows']}
       columns={fstate['columns']}
       async={true}
-      // fakeFilters={[
-      //   {
-      //     id: 'Pclass',
-      //     name: 'Pclass',
-      //     domain: [1,2,3],
-      //     values: [1, 2]
-      //   }
-      // ]}
+      branchFilters={[
+        {
+          id: 'Pclass',
+          name: 'Pclass',
+          domain: [1,2,3],
+          values: [1, 2]
+        }
+      ]}
       cubeQuery={cubeQuery}
       measures={measures} />
        {/* <AsyncPivotChart
