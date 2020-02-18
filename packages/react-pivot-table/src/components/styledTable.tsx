@@ -3,7 +3,8 @@ import { getTheme } from '../theme';
 const theme = getTheme();
 export const StyledTable = styled.table`
   border-collapse: collapse;
-  /* font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif; */
+  box-sizing: content-box;
+  font-family: Lato,'Helvetica Neue',Arial,Helvetica,sans-serif;
   tbody {
     td {
       border: 1px solid #333;
