@@ -6,8 +6,10 @@ import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
 import { getPureNestTree, getCossMatrix, getNestFields, QueryPath } from './utils';
-import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
+import { StyledTable } from './components/styledTable';
+import { getTheme } from './theme';
 
+const theme = getTheme();
 
 interface PivotChartProps {
   dataSource: DataSource;
@@ -69,12 +71,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
 
   // {rows, columns, dimsInVis} = getNestDimensions(visType)
   // getCell(path.concat(dimsInVis))
-  const measuresInView = useMemo<string[]>(() => {
-    return viewMeasures.map(m => m.id);
-  }, [viewMeasures])
-  const measuresInFacet = useMemo<string[]>(() => {
-    return facetMeasures.map(m => m.id);
-  }, [facetMeasures])
+
   const leftNestTree = useMemo<NestTree>(() => {
     return getPureNestTree(dataSource, nestRows);
   }, [dataSource, nestRows]);
@@ -87,12 +84,12 @@ const PivotChart: React.FC<PivotChartProps> = props => {
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList, visType])
   return (
     <div
-      style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: "auto" }}
+      style={{ border: `1px solid ${theme.table.borderColor}`, overflowX: "auto" }}
     >
       <div style={{ display: "flex", flexWrap: "nowrap" }}>
         <div>
           <div
-            style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}
+            style={{ height: emptyGridHeight, backgroundColor: theme.table.thead.backgroundColor }}
           ></div>
           <LeftNestGrid
             defaultExpandedDepth={defaultRowDepth}
@@ -108,7 +105,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
           <TopNestGrid
             defaultExpandedDepth={defaultColumnDepth}
             depth={nestColumns.length}
-            measures={measures}
+            measures={measureList}
             data={topNestTree}
             onSizeChange={(w, h) => {
               setEmptyGridHeight(h);
@@ -120,9 +117,9 @@ const PivotChart: React.FC<PivotChartProps> = props => {
           <CrossTable
             visType={visType}
             matrix={crossMatrix}
-            measures={measuresInFacet}
+            measures={facetMeasures}
             dimensionsInView={dimensionsInView}
-            measuresInView={measuresInView}
+            measuresInView={viewMeasures}
           />
         </StyledTable>
       </div>

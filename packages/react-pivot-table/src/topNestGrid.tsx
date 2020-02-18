@@ -1,7 +1,7 @@
 import React, { useMemo, ReactNodeArray, useEffect, useRef } from "react";
 import deepcopy from "deepcopy";
 import { useNestTree, transTree2LeafPathList } from "./utils";
-import { NestTree } from "./common";
+import { NestTree, Measure } from "./common";
 import ExpandButton from "./components/expandButton";
 import { getTheme } from "./theme";
 
@@ -10,7 +10,7 @@ const theme = getTheme();
 interface TopNestGridProps {
   data: NestTree;
   depth: number;
-  measures: string[];
+  measures: Measure[];
   onSizeChange?: (width: number, height: number) => void;
   onExpandChange?: (lpList: string[][]) => void;
   defaultExpandedDepth: number;
@@ -45,7 +45,7 @@ function getExpandedChildSize(tree: NestTree): number {
 
 function dfsRender(
   tree: NestTree,
-  measures: string[],
+  measures: Measure[],
   depth: number,
   rows: ReactNodeArray[],
   callback: (path: number[]) => void
@@ -74,7 +74,7 @@ function dfsRender(
       </th>
     );
     measures.forEach(mea => {
-      rows[rows.length - 1].push(<th key={`${tree.path.join("-")}-${tree.id}-${mea}`}>{mea}</th>);
+      rows[rows.length - 1].push(<th key={`${tree.path.join("-")}-${tree.id}-${mea.id}`} style={{ minWidth: `${mea.minWidth}px` }}>{mea.name}</th>);
     });
     for (let child of tree.children) {
       dfsRender(child, measures, depth + 1, rows, callback);
@@ -95,7 +95,7 @@ function dfsRender(
     );
     measures.forEach(mea => {
       rows[rows.length - 1].push(
-        <th key={`${tree.path.join("-")}-${tree.id}-${mea}`}>{mea}</th>
+        <th key={`${tree.path.join("-")}-${tree.id}-${mea.id}`} style={{ minWidth: `${mea.minWidth}px` }}>{mea.name}</th>
       );
     });
   }
@@ -105,7 +105,6 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
   let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth } = props;
   const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
-
   useEffect(() => {
     let newTree = tree2renderTree(data, defaultExpandedDepth);
     setNestTree(newTree);

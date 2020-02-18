@@ -30,7 +30,9 @@ export interface Field {
 }
 
 export interface Measure extends Field {
-  aggregator?: AggFC
+  aggregator?: AggFC;
+  minWidth?: number;
+  formatter?: (value: number | undefined) => number | string;
 }
 
 export type VisType = 'number' | 'bar' | 'line' | 'scatter';

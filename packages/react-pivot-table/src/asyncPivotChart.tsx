@@ -13,7 +13,10 @@ import {
   AsyncCacheCube,
   queryCube
 } from "./utils";
-import { StyledTable, TABLE_BG_COLOR, TABLE_BORDER_COLOR } from './components/styledTable';
+import { StyledTable } from './components/styledTable';
+import { getTheme } from './theme';
+
+const theme = getTheme();
 
 
 interface AsyncPivotChartProps {
@@ -76,13 +79,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     })
   }, [cubeQuery])
 
-  const measuresInView = useMemo<string[]>(() => {
-    return viewMeasures.map(m => m.id);
-  }, [viewMeasures])
-  const measuresInFacet = useMemo<string[]>(() => {
-    return facetMeasures.map(m => m.id);
-  }, [facetMeasures])
-
   useEffect(() => {
     asyncCubeRef.current.getCuboidNestTree(nestRows, branchFilters).then(tree => {
       setLeftNestTree(tree);
@@ -99,15 +95,14 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       setCrossMatrix(matrix);
     })
   }, [rows, columns, measures, rowLPList, columnLPList, visType, dimensionsInView, measureList])
-
   return (
     <div
-      style={{ border: `1px solid ${TABLE_BORDER_COLOR}`, overflowX: "auto" }}
+      style={{ border: `1px solid ${theme.table.borderColor}`, overflowX: "auto" }}
     >
       <div style={{ display: "flex", flexWrap: "nowrap" }}>
         <div>
           <div
-            style={{ height: emptyGridHeight, backgroundColor: TABLE_BG_COLOR }}
+            style={{ height: emptyGridHeight, backgroundColor: theme.table.thead.backgroundColor }}
           ></div>
           <LeftNestGrid
             defaultExpandedDepth={defaultRowDepth}
@@ -123,7 +118,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
           <TopNestGrid
             defaultExpandedDepth={defaultColumnDepth}
             depth={nestColumns.length}
-            measures={measures}
+            measures={measureList}
             data={topNestTree}
             onSizeChange={(w, h) => {
               setEmptyGridHeight(h);
@@ -135,9 +130,9 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
           <CrossTable
             visType={visType}
             matrix={crossMatrix}
-            measures={measuresInFacet}
+            measures={facetMeasures}
             dimensionsInView={dimensionsInView}
-            measuresInView={measuresInView}
+            measuresInView={viewMeasures}
           />
         </StyledTable>
       </div>

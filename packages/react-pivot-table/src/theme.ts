@@ -5,8 +5,17 @@ interface ThemeConfig {
   },
   summary?: {
     label?: string
+  },
+  table?: {
+    thead?: {
+      backgroundColor?: string;
+      color?: string;
+    }
+    borderColor?: string;
+    color?: string;
   }
 }
+
 const THEME_CONFIG: ThemeConfig = {
   root: {
     display: true,
@@ -14,11 +23,19 @@ const THEME_CONFIG: ThemeConfig = {
   },
   summary: {
     label: '(total)'
+  },
+  table: {
+    thead: {
+      backgroundColor: '#E9EDF2',
+      color: '#5A6C84'
+    },
+    borderColor: '#DFE3E8',
+    color: '#333333'
   }
 };
 
 function deepMerge<T>(origin: T, changes: T): T {
-  for (let key in origin) {
+  for (let key in changes) {
     // todo: array
     if (origin[key] instanceof Function) {
       origin[key] = changes[key]
@@ -31,10 +48,33 @@ function deepMerge<T>(origin: T, changes: T): T {
   return origin;
 }
 
-export function registerTheme(config: ThemeConfig) {
+function getInitTheme (): ThemeConfig {
+  return {
+    root: {
+      display: true,
+      label: 'All'
+    },
+    summary: {
+      label: '(total)'
+    },
+    table: {
+      thead: {
+        backgroundColor: '#E9EDF2',
+        color: '#5A6C84'
+      },
+      borderColor: '#DFE3E8',
+      color: '#333333'
+    }
+  };
+}
+
+export function registerTheme(config?: ThemeConfig) {
+  let initTheme = getInitTheme();
+  if (typeof config === 'undefined') return initTheme;
+  let mergedConfig = deepMerge(initTheme, config);
   for (let key in config) {
     if (THEME_CONFIG[key as keyof ThemeConfig]) {
-      THEME_CONFIG[key as keyof ThemeConfig] = deepMerge(THEME_CONFIG[key as keyof ThemeConfig], config[key as keyof ThemeConfig]);
+      THEME_CONFIG[key as keyof ThemeConfig] = deepMerge(THEME_CONFIG[key as keyof ThemeConfig], mergedConfig[key as keyof ThemeConfig]);
     }
   }
 }
