@@ -292,7 +292,7 @@ export function aggregateOnGroupBy(dataSource: DataSource, fields: string[], mea
   return data;
 }
 
-type cmpFunc = (a: string, b: string) => number;
+export type cmpFunc = (a: string, b: string) => number;
 export class AsyncCacheCube {
   private dynamicCube: DynamicCube;
   private dimensions: string[];

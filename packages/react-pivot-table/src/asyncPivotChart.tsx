@@ -11,7 +11,8 @@ import {
   useNestFields,
   QueryPath,
   AsyncCacheCube,
-  queryCube
+  queryCube,
+  cmpFunc
 } from "./utils";
 import { StyledTable } from './components/styledTable';
 import { getTheme } from './theme';
@@ -31,6 +32,7 @@ interface AsyncPivotChartProps {
   async?: boolean;
   cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
   branchFilters?: Filter[];
+  dimensionCompare?: cmpFunc
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -50,7 +52,8 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     },
     async,
     cubeQuery,
-    branchFilters
+    branchFilters,
+    dimensionCompare
   } = props;
   const {
     rowDepth: defaultRowDepth = 1,
@@ -75,9 +78,10 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
 
   useEffect(() => {
     asyncCubeRef.current = new AsyncCacheCube({
-      asyncCubeQuery: cubeQuery
+      asyncCubeQuery: cubeQuery,
+      cmp: dimensionCompare
     })
-  }, [cubeQuery])
+  }, [cubeQuery, dimensionCompare])
 
   useEffect(() => {
     asyncCubeRef.current.getCuboidNestTree(nestRows, branchFilters).then(tree => {
