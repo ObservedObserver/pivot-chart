@@ -1,6 +1,6 @@
 {
   "name": "pivot-chart",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "pivot table react component",
   "main": "./build/index.js",
   "types": "./build/index.d.ts",
