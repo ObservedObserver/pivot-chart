@@ -16,6 +16,7 @@ export const StyledTable = styled.table`
       color: ${porps => theme.table.color};
       border: solid 1px ${props => theme.table.borderColor};
       text-align: right;
+      box-sizing: content-box;
     }
   }
   thead {
@@ -29,6 +30,7 @@ export const StyledTable = styled.table`
       color: ${props => theme.table.thead.color};
       white-space: nowrap;
       border: solid 1px ${props => theme.table.borderColor};
+      box-sizing: content-box;
     }
   }
   thead.vis {
