@@ -363,18 +363,18 @@ export class AsyncCacheCube {
       crossMatrix.push([])
       for (let j = 0; j < columnLen; j++) {
         let path: QueryPath = [
-          ...rowLPList[i].map((d, i) => ({
-            dimCode: rows[i],
+          ...rowLPList[i].map((d, index) => ({
+            dimCode: rows[index],
             dimValue: d
           })),
-          ...columnLPList[j].map((d, i) => ({
-            dimCode: columns[i],
+          ...columnLPList[j].map((d, index) => ({
+            dimCode: columns[index],
             dimValue: d
           }))
         ]
-        for (let i = 0; i < dimensionsInView.length; i++) {
+        for (let dim of dimensionsInView) {
           path.push({
-            dimCode: dimensionsInView[i],
+            dimCode: dim,
             dimValue: '*'
           });
         }

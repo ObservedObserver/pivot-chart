@@ -27,7 +27,12 @@ function SyncApp () {
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
-    <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+    <PivotChart
+      defaultExpandedDepth={{
+        rowDepth: 20,
+        columnDepth: 20
+      }}
+      visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }
 

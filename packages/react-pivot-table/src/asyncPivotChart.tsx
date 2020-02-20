@@ -60,6 +60,12 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     columnDepth: defaultColumnDepth = 1
   } = defaultExpandedDepth;
   const asyncCubeRef = useRef<AsyncCacheCube>();
+  // todo: use rxjs to handle complex async request problem
+  const requestIndex = useRef<{left: number;top: number; matrix: number}>({
+    left: 0,
+    top: 0,
+    matrix: 0
+  });
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
   const [columnLPList, setColumnLPList] = useState<string[][]>([]);
@@ -84,21 +90,33 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   }, [cubeQuery, dimensionCompare])
 
   useEffect(() => {
+    requestIndex.current.left++;
+    let id = requestIndex.current.left;
     asyncCubeRef.current.getCuboidNestTree(nestRows, branchFilters).then(tree => {
-      setLeftNestTree(tree);
+      if (id === requestIndex.current.left) {
+        setLeftNestTree(tree);
+      }
     })
   }, [nestRows, branchFilters]);
   useEffect(() => {
+    requestIndex.current.top++;
+    let id = requestIndex.current.top;
     asyncCubeRef.current.getCuboidNestTree(nestColumns, branchFilters).then(tree => {
-      setTopNestTree(tree);
+      if (id === requestIndex.current.top) {
+        setTopNestTree(tree);
+      }
     })
   }, [nestColumns, branchFilters]);
 
   useEffect(() => {
+    requestIndex.current.matrix++;
+    let id = requestIndex.current.matrix;
     asyncCubeRef.current.requestCossMatrix(visType, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView).then(matrix => {
-      setCrossMatrix(matrix);
+      if (requestIndex.current.matrix === id) {
+        setCrossMatrix(matrix);
+      }
     })
-  }, [rows, columns, measures, rowLPList, columnLPList, visType, dimensionsInView, measureList])
+  }, [rows, columns, dimensionsInView, measures, rowLPList, columnLPList, visType, measureList])
   return (
     <div
       style={{ border: `1px solid ${theme.table.borderColor}`, overflowX: "auto" }}

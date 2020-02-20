@@ -63,6 +63,10 @@ function AsyncApp () {
       //     values: [1, 2]
       //   }
       // ]}
+      defaultExpandedDepth={{
+        rowDepth: 20,
+        columnDepth: 20
+      }}
       cubeQuery={cubeQuery}
       measures={measures} />
        {/* <AsyncPivotChart

@@ -27,9 +27,11 @@ export function TitanicCubeService (dimensions: string[], meaList: string[]): Pr
         dataSource,
         dimensions,
         measures,
-      );
-      // console.log('[service]', result)
-      resolve(result);
+      );resolve(result);
+      setTimeout(() => {
+        resolve(result);
+      }, Math.round(Math.random() * 500))
+      console.log('[service]', result)
     } catch (error) {
       console.error('error occur')
       reject(error);

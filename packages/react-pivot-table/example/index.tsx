@@ -16,10 +16,10 @@ function App () {
       </div>
       <div className="ui bottom attached active tab segment">
         {
-          pageIndex === 0 && <AsyncApp />
+          pageIndex === 1 && <AsyncApp />
         }
         {
-          pageIndex === 1 && <SyncApp />
+          pageIndex === 0 && <SyncApp />
         }
     </div>
   </div>
