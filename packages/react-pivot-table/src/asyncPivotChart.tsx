@@ -66,6 +66,17 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     top: 0,
     matrix: 0
   });
+  const bothUpdateFlag = useRef<{
+    left: boolean;
+    top: boolean;
+    leftCache: string[][];
+    topCache: string[][]
+  }>({
+    left: true,
+    top: true,
+    leftCache: [],
+    topCache: []
+  });
   const [emptyGridHeight, setEmptyGridHeight] = useState<number>(0);
   const [rowLPList, setRowLPList] = useState<string[][]>([]);
   const [columnLPList, setColumnLPList] = useState<string[][]>([]);
@@ -91,32 +102,36 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
 
   useEffect(() => {
     requestIndex.current.left++;
-    let id = requestIndex.current.left;
-    asyncCubeRef.current.getCuboidNestTree(nestRows, branchFilters).then(tree => {
-      if (id === requestIndex.current.left) {
-        setLeftNestTree(tree);
-      }
-    })
-  }, [nestRows, branchFilters]);
-  useEffect(() => {
     requestIndex.current.top++;
-    let id = requestIndex.current.top;
-    asyncCubeRef.current.getCuboidNestTree(nestColumns, branchFilters).then(tree => {
-      if (id === requestIndex.current.top) {
-        setTopNestTree(tree);
+    let topId = requestIndex.current.top;
+    let leftId = requestIndex.current.left;
+    Promise.all([
+      asyncCubeRef.current.getCuboidNestTree(nestRows, branchFilters),
+      asyncCubeRef.current.getCuboidNestTree(nestColumns, branchFilters)
+    ]).then(trees => {
+      const [leftTree, topTree] = trees;
+      bothUpdateFlag.current.left = false;
+      bothUpdateFlag.current.top = false;
+      if (leftId === requestIndex.current.left) {
+        setLeftNestTree(leftTree);
       }
-    })
-  }, [nestColumns, branchFilters]);
+      if (topId === requestIndex.current.top) {
+        setTopNestTree(topTree);
+      }
+    });
+  }, [nestRows, nestColumns, branchFilters]);
 
   useEffect(() => {
-    requestIndex.current.matrix++;
-    let id = requestIndex.current.matrix;
-    asyncCubeRef.current.requestCossMatrix(visType, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView).then(matrix => {
-      if (requestIndex.current.matrix === id) {
-        setCrossMatrix(matrix);
-      }
-    })
-  }, [rows, columns, dimensionsInView, measures, rowLPList, columnLPList, visType, measureList])
+    if (bothUpdateFlag.current.left && bothUpdateFlag.current.top) {
+      requestIndex.current.matrix++;
+      let id = requestIndex.current.matrix;
+      asyncCubeRef.current.requestCossMatrix(visType, bothUpdateFlag.current.leftCache, bothUpdateFlag.current.topCache, rows, columns, measureList, dimensionsInView).then(matrix => {
+        if (requestIndex.current.matrix === id) {
+          setCrossMatrix(matrix);
+        }
+      })
+    }
+  }, [measures, rowLPList, columnLPList, visType, measureList])
   return (
     <div
       style={{ border: `1px solid ${theme.table.borderColor}`, overflowX: "auto" }}
@@ -132,6 +147,8 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
             depth={nestRows.length}
             data={leftNestTree}
             onExpandChange={lpList => {
+              bothUpdateFlag.current.left = true;
+              bothUpdateFlag.current.leftCache = lpList;
               setRowLPList(lpList);
             }}
           />
@@ -146,6 +163,8 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
               setEmptyGridHeight(h);
             }}
             onExpandChange={lpList => {
+              bothUpdateFlag.current.top = true;
+              bothUpdateFlag.current.topCache = lpList;
               setColumnLPList(lpList);
             }}
           />
