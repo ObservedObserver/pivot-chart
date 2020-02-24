@@ -56,8 +56,8 @@ const PivotChart: React.FC<PivotChartProps> = props => {
     facetMeasures,
     viewMeasures
   } = useMemo(() => {
-    return getNestFields(visType, rows, columns, measureList)
-  }, [rows, columns, measureList, visType]);
+    return getNestFields(visType, rowList, columnList, measureList)
+  }, [rowList, columnList, measureList, visType]);
 
   useEffect(() => {
     cubeRef.current = createCube({
@@ -73,14 +73,14 @@ const PivotChart: React.FC<PivotChartProps> = props => {
   // getCell(path.concat(dimsInVis))
 
   const leftNestTree = useMemo<NestTree>(() => {
-    return getPureNestTree(dataSource, nestRows);
+    return getPureNestTree(dataSource, nestRows.map(r => r.id));
   }, [dataSource, nestRows]);
   const topNestTree = useMemo<NestTree>(() => {
-    return getPureNestTree(dataSource, nestColumns);
+    return getPureNestTree(dataSource, nestColumns.map(c => c.id));
   }, [dataSource, nestColumns]);
 
   const crossMatrix = useMemo(() => {
-    return getCossMatrix(visType, cubeRef.current, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView);
+    return getCossMatrix(visType, cubeRef.current, rowLPList, columnLPList, rows, columns, measureList, dimensionsInView.map(d => d.id));
   }, [dataSource, rows, columns, measures, rowLPList, columnLPList, visType])
   return (
     <div

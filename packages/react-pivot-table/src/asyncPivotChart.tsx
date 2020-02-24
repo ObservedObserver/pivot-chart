@@ -34,17 +34,12 @@ interface AsyncPivotChartProps {
   branchFilters?: Filter[];
   dimensionCompare?: cmpFunc
 }
-function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
-  const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
-  const columns = useMemo<string[]>(() => columnList.map(f => f.id), [columnList])
-  const measures = useMemo<string[]>(() => measureList.map(f => f.id), [measureList])
-  return { rows, columns, measures }
-}
+
 const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   const {
-    rows: rowList = [],
-    columns: columnList = [],
-    measures: measureList = [],
+    rows = [],
+    columns = [],
+    measures = [],
     visType = 'number',
     defaultExpandedDepth = {
       rowDepth: 0,
@@ -83,7 +78,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   const [leftNestTree, setLeftNestTree] = useState<NestTree>({ id: 'root' });
   const [topNestTree, setTopNestTree] = useState<NestTree>({ id: 'root' });
   const [crossMatrix, setCrossMatrix] = useState<Record[][] | Record[][][]>([]);
-  const { rows, columns, measures } = useMetaTransform(rowList, columnList, measureList);
 
   const {
     nestRows,
@@ -91,7 +85,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     dimensionsInView,
     facetMeasures,
     viewMeasures
-  } = useNestFields(visType, rows, columns, measureList);
+  } = useNestFields(visType, rows, columns, measures);
 
   useEffect(() => {
     asyncCubeRef.current = new AsyncCacheCube({
@@ -125,13 +119,13 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     if (bothUpdateFlag.current.left && bothUpdateFlag.current.top) {
       requestIndex.current.matrix++;
       let id = requestIndex.current.matrix;
-      asyncCubeRef.current.requestCossMatrix(visType, bothUpdateFlag.current.leftCache, bothUpdateFlag.current.topCache, rows, columns, measureList, dimensionsInView).then(matrix => {
+      asyncCubeRef.current.requestCossMatrix(visType, bothUpdateFlag.current.leftCache, bothUpdateFlag.current.topCache, rows, columns, measures, dimensionsInView).then(matrix => {
         if (requestIndex.current.matrix === id) {
           setCrossMatrix(matrix);
         }
       })
     }
-  }, [measures, rowLPList, columnLPList, visType, measureList])
+  }, [measures, rowLPList, columnLPList, visType])
   return (
     <div
       style={{ border: `1px solid ${theme.table.borderColor}`, overflowX: "auto" }}
@@ -157,7 +151,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
           <TopNestGrid
             defaultExpandedDepth={defaultColumnDepth}
             depth={nestColumns.length}
-            measures={measureList}
+            measures={measures}
             data={topNestTree}
             onSizeChange={(w, h) => {
               setEmptyGridHeight(h);

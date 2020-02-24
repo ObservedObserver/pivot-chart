@@ -27,6 +27,7 @@ export interface Field {
    */
   aggName?: string;
   [key: string]: any;
+  cmp?: (a: any, b: any) => number;
 }
 
 export interface Measure extends Field {

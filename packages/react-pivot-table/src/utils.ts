@@ -4,7 +4,7 @@ import produce from 'immer';
 import { sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import { Node } from 'cube-core/built/core/momentCube';
-import { VisType } from './common';
+import { VisType, Field } from './common';
 import { getTheme } from './theme';
 import { DynamicCube, Cuboid } from './cube';
 const theme = getTheme();
@@ -24,7 +24,23 @@ export function useNestTree () {
   }, [setNestTree]);
   return { nestTree, setNestTree, repaint }
 }
-
+const alphabetCmp = (a: any, b: any) => {
+  if (a > b) return 1;
+  if (a === b) return 0;
+  if (a < b) return -1;
+}
+export function sortPureNestTree (tree: NestTree, dimensions: Field[], depth: number = 0) {
+  if (depth <= dimensions.length && tree.children && tree.children.length > 0) {
+    if (dimensions[depth].cmp) {
+      tree.children.sort((a, b) => dimensions[depth].cmp(a.id, b.id))
+    } else {
+      tree.children.sort((a, b) => alphabetCmp(a.id, b.id))
+    }
+    for (let child of tree.children) {
+      sortPureNestTree(child, dimensions, depth + 1)
+    }
+  }
+}
 export function getPureNestTree (dataSource: DataSource, dimensions: string[]) {
   let hashTree: HashTree = new Map();
   let dataLen = dataSource.length;
@@ -190,13 +206,13 @@ export function getCossMatrix(visType: VisType, cube: momentCube, rowLPList: str
 }
 
 interface NestFields {
-  nestRows: string[];
-  nestColumns: string[];
-  dimensionsInView: string[];
+  nestRows: Field[];
+  nestColumns: Field[];
+  dimensionsInView: Field[];
   facetMeasures: Measure[];
   viewMeasures: Measure[];
 }
-export function getNestFields(visType: VisType, rows: string[], columns: string[], measures: Measure[]): NestFields  {
+export function getNestFields(visType: VisType, rows: Field[], columns: Field[], measures: Measure[]): NestFields  {
   switch(visType) {
     case 'number':
       return {
@@ -234,7 +250,7 @@ export function getNestFields(visType: VisType, rows: string[], columns: string[
   }
 }
 
-export function useNestFields (visType: VisType, rows: string[], columns: string[], measures: Measure[]): NestFields {
+export function useNestFields (visType: VisType, rows: Field[], columns: Field[], measures: Measure[]): NestFields {
   const nestRows = rows;
   const { nestColumns, dimensionsInView } = useMemo(() => {
     if (visType === 'line' || visType === 'bar') {
@@ -342,9 +358,10 @@ export class AsyncCacheCube {
     const cuboid = await this.dynamicCube.getCuboid(cuboidKey, measures);
     return cuboid.get(path);
   }
-  public async getCuboidNestTree (originPathCode: string[], branchFilters?: Filter[]): Promise<NestTree> {
-    const path: string[] = [...originPathCode].sort(this.dimCompare);
-    const cuboid = await this.dynamicCube.getCuboid(path, []);
+  public async getCuboidNestTree (originPath: Field[], branchFilters?: Filter[]): Promise<NestTree> {
+    const originPathCode = originPath.map(p => p.id);
+    const pathCode: string[] = [...originPathCode].sort(this.dimCompare);
+    const cuboid = await this.dynamicCube.getCuboid(pathCode, []);
     let viewData = cuboid.dataSource;
     if (branchFilters && branchFilters.every(f => originPathCode.includes(f.id))) {
       viewData = cuboid.dataSource.filter(record => {
@@ -352,9 +369,11 @@ export class AsyncCacheCube {
         return branchFilters.every(f => f.values.find(v => v == record[f.id]));
       })
     }
-    return getPureNestTree(viewData, originPathCode);
+    const pureNestTree = getPureNestTree(viewData, originPathCode);
+    sortPureNestTree(pureNestTree, originPath, 0);
+    return pureNestTree;
   }
-  public async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: string[], columns: string[], measures: Measure[], dimensionsInView: string[]): Promise<Record[][] | Record[][][]> {
+  public async requestCossMatrix(visType: VisType, rowLPList: string[][] = [], columnLPList: string[][] = [], rows: Field[], columns: Field[], measures: Measure[], dimensionsInView: Field[]): Promise<Record[][] | Record[][][]> {
     const rowLen = rowLPList.length;
     const columnLen = columnLPList.length;
     let crossMatrix: Array<Array<Record>> = [];
@@ -364,17 +383,17 @@ export class AsyncCacheCube {
       for (let j = 0; j < columnLen; j++) {
         let path: QueryPath = [
           ...rowLPList[i].map((d, index) => ({
-            dimCode: rows[index],
+            dimCode: rows[index].id,
             dimValue: d
           })),
           ...columnLPList[j].map((d, index) => ({
-            dimCode: columns[index],
+            dimCode: columns[index].id,
             dimValue: d
           }))
         ]
         for (let dim of dimensionsInView) {
           path.push({
-            dimCode: dim,
+            dimCode: dim.id,
             dimValue: '*'
           });
         }

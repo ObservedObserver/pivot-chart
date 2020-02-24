@@ -1,20 +1,20 @@
 import React, { ReactNode } from 'react';
 import VegaChart from './charts/vegaChart';
 
-import { Record, VisType, Measure } from './common';
+import { Record, VisType, Measure, Field } from './common';
 interface CrossTableProps {
   matrix: Record[][];
   measures: Measure[];
-  dimensionsInView: string[];
+  dimensionsInView: Field[];
   measuresInView: Measure[];
   visType: VisType;
 }
-function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure: Measure, dimensionsInView: string[], measuresInView: Measure[]): ReactNode {
+function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure: Measure, dimensionsInView: Field[], measuresInView: Measure[]): ReactNode {
   switch (visType) {
     case 'bar':
     case 'line':
       return (<div className="vis-container">
-        {cell && <VegaChart markType={visType} dataSource={cell as Record[]} x={dimensionsInView[0]} y={facetMeasure.id} />}
+        {cell && <VegaChart markType={visType} dataSource={cell as Record[]} x={dimensionsInView[0].id} y={facetMeasure.id} />}
       </div>)
     case 'scatter':
       return (<div className="vis-container">
