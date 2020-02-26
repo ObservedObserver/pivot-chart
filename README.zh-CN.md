@@ -56,7 +56,7 @@ Theme.registerTheme({
 })
 ```
 
-一个完整的demo:
+同步计算:
 ```js
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
@@ -88,10 +88,8 @@ function App () {
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
   useEffect(() => {
-    console.log({ dataSource, dimensions, measures })
     setData(dataSource);
   }, [])
-  console.log(fstate)
   const measures = useMemo(() => fstate['measures'].map(f => ({
     ...f,
     aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators]
@@ -104,6 +102,48 @@ function App () {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
+```
+
+
+异步计算
+```js
+function AsyncApp () {
+  
+  const [data, setData] = useState<DataSource>([]);
+  const [fields, setFields] = useState<Field[]>([]);
+  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
+  const [visType, setVisType] = useState<VisType>('number');
+  useEffect(() => {
+    const { dataSource, dimensions, measures } = getTitanicData();
+    setData(dataSource);
+    const fs: Field[] = [...dimensions, ...measures].map((f: string) => ({ id: f, name: f }));
+    setFields(fs);
+  }, [])
+  const measures = useMemo(() => fstate['measures'].map(f => ({
+    ...f,
+    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators],
+    minWidth: 100,
+    formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
+  })), [fstate['measures']]);
+  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
+    return TitanicCubeService(path.map(p => p.dimCode), measures);
+  }, [])
+  return <div>
+    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <AsyncPivotChart
+      visType={visType}
+      rows={fstate['rows']}
+      columns={fstate['columns']}
+      async
+      defaultExpandedDepth={{
+        rowDepth: 20,
+        columnDepth: 20
+      }}
+      cubeQuery={cubeQuery}
+      measures={measures} />
+  </div>
+}
 ```
 
 你也可以将上面👆的demo在本地运行
@@ -125,6 +165,23 @@ interface PivotChartProps {
   };
   async?: false;
   cubeQuery?: (path: QueryPath) => Promise<DataSource>;
+}
+```
+
+```js
+interface AsyncPivotChartProps {
+  rows: Field[];
+  columns: Field[];
+  measures: Measure[];
+  visType?: VisType;
+  defaultExpandedDepth?: {
+    rowDepth: number;
+    columnDepth: number;
+  };
+  async?: boolean;
+  cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
+  branchFilters?: Filter[];
+  dimensionCompare?: cmpFunc
 }
 ```
 
