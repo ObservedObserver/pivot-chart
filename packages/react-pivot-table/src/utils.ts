@@ -356,6 +356,7 @@ export class AsyncCacheCube {
     const path: QueryPath = [...originPath].sort((a, b) => this.dimCompare(a.dimCode, b.dimCode));
     const cuboidKey = path.map(p => p.dimCode);
     const cuboid = await this.dynamicCube.getCuboid(cuboidKey, measures);
+    console.log(path, cuboid.get(path))
     return cuboid.get(path);
   }
   public async getCuboidNestTree (originPath: Field[], branchFilters?: Filter[]): Promise<NestTree> {

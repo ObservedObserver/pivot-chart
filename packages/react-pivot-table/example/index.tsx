@@ -4,7 +4,7 @@ import AsyncApp from './async';
 import SyncApp from './sync';
 
 function App () {
-  const [pageIndex, setPageIndex] = useState(0);
+  const [pageIndex, setPageIndex] = useState(1);
   return <div>
       <div className="ui top attached tabular menu">
         <div className={`${pageIndex === 0 && 'active'} item`} onClick={() => {

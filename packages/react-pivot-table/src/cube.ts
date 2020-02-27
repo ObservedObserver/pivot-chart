@@ -45,16 +45,26 @@ export class Cuboid {
     return this.query(this.tree, adjustPath, 0);
   }
   private query (node: CuboidNode, path: string[], depth: number): Record[] {
+    let value = path[depth] || '';
     if (depth >= this.dimensions.length - 1) {
-      let value = path[depth] || '';
       if (value === '*') return [...node.values()];
       return node.has(value) ? [node.get(value)] : [];
     }
     let children: Record[] = [];
-    for (let child of node) {
-      let childRecords = this.query(child[1] as CuboidNode, path, depth + 1);
-      for (let record of childRecords) {
-        children.push(record);
+    if (value === '*') {
+      for (let child of node) {
+        let childRecords = this.query(child[1] as CuboidNode, path, depth + 1);
+        for (let record of childRecords) {
+          children.push(record);
+        }
+      }
+    } else {
+      let child = node.get(value);
+      if (child) {
+        let childRecords = this.query(child as CuboidNode, path, depth + 1);
+        for (let record of childRecords) {
+          children.push(record);
+        }
       }
     }
     return children;

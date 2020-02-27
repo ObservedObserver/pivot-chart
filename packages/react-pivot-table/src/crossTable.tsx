@@ -25,7 +25,7 @@ function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure:
       if (cell && facetMeasure.formatter) {
         return facetMeasure.formatter((cell as Record)[facetMeasure.id]);
       }
-      return (cell && (cell as Record)[facetMeasure.id]);
+      return (cell && (cell as Record)[facetMeasure.id]) || '--';
   }
 }
 const CrossTable: React.FC<CrossTableProps> = props => {
