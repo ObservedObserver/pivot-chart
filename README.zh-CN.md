@@ -21,11 +21,11 @@
 
 安装npm包.
 ```bash
-npm i --save fast-pivot
+npm i --save pivot-chart
 
 # or
 
-yarn add fast-pivot
+yarn add pivot-chart
 ```
 
 使用组件

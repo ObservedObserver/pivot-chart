@@ -128,7 +128,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   }, [measures, rowLPList, columnLPList, visType])
   return (
     <div
-      style={{ border: `1px solid ${theme.table.borderColor}`, overflowX: "auto" }}
+      style={{ border: `1px solid ${theme.table.borderColor}`, overflow: 'auto' }}
     >
       <div style={{ display: "flex", flexWrap: "nowrap" }}>
         <div>

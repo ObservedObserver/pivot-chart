@@ -20,11 +20,11 @@ pivot chart also provide with basic pivot table components for you to build your
 
 install npm package.
 ```bash
-npm i --save fast-pivot
+npm i --save pivot-chart
 
 # or
 
-yarn add fast-pivot
+yarn add pivot-chart
 ```
 
 basic usage.
