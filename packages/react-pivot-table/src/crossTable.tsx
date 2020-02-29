@@ -10,11 +10,12 @@ interface CrossTableProps {
   visType: VisType;
 }
 function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure: Measure, dimensionsInView: Field[], measuresInView: Measure[]): ReactNode {
+  const viewDimCode = dimensionsInView.length > 0 ? dimensionsInView[0].id : 'total';
   switch (visType) {
     case 'bar':
     case 'line':
       return (<div className="vis-container">
-        {cell && <VegaChart markType={visType} dataSource={cell as Record[]} x={dimensionsInView[0].id} y={facetMeasure.id} />}
+        {cell && <VegaChart markType={visType} dataSource={cell as Record[]} x={viewDimCode} y={facetMeasure.id} />}
       </div>)
     case 'scatter':
       return (<div className="vis-container">

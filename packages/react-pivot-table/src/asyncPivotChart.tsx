@@ -86,7 +86,6 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     facetMeasures,
     viewMeasures
   } = useNestFields(visType, rows, columns, measures);
-
   useEffect(() => {
     asyncCubeRef.current = new AsyncCacheCube({
       asyncCubeQuery: cubeQuery,
