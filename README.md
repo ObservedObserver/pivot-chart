@@ -146,8 +146,11 @@ function AsyncApp () {
 ```
 
 demo above can be run locally with
-```
-npm run dev
+```bash
+# init development environment
+yarn workspace pivot-chart initenv
+# start dev server
+yarn workspace pivot-chart dev
 ```
 
 ## API

@@ -147,8 +147,11 @@ function AsyncApp () {
 ```
 
 你也可以将上面👆的demo在本地运行
-```
-npm run dev
+```bash
+# 初始化开发环境
+yarn workspace pivot-chart initenv
+# 启动dev server
+yarn workspace pivot-chart dev
 ```
 
 ## API
