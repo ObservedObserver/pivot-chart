@@ -10,6 +10,8 @@ pivot chart also provide with basic pivot table components for you to build your
 
 ## Demo
 
+[Online Demo](https://chspace.oss-cn-hongkong.aliyuncs.com/pivot-chart/index.html)
+
 | feature | demo(gif) |
 | - | - |
 | basic expandable nest/cross table | ![basic expandable nest/cross table.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-basic.gif) |

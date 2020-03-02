@@ -11,6 +11,8 @@
 
 ## Demo
 
+[线上demo](https://chspace.oss-cn-hongkong.aliyuncs.com/pivot-chart/index.html)
+
 | 功能 | demo(gif) |
 | - | - |
 | 基本的nest/cross透视表(可展开、旋转) | ![basic expandable nest/cross table.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-basic.gif) |
