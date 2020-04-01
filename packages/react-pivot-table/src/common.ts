@@ -45,3 +45,26 @@ export interface Filter extends Field {
   values: any[];
   domain: any[];
 }
+
+export enum DimensionArea {
+  row = 'row',
+  column = 'column'
+}
+
+export type AggNodeConfig = {
+  [key in DimensionArea]: boolean
+}
+
+export interface PivotBaseProps {
+  rows: Field[];
+  columns: Field[];
+  measures: Measure[];
+  visType?: VisType;
+  defaultExpandedDepth?: {
+    rowDepth: number;
+    columnDepth: number;
+  };
+  showAggregatedNode?: {
+    [key in DimensionArea]: boolean;
+  }
+}

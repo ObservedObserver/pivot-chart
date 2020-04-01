@@ -14,6 +14,7 @@ interface TopNestGridProps {
   onSizeChange?: (width: number, height: number) => void;
   onExpandChange?: (lpList: string[][]) => void;
   defaultExpandedDepth: number;
+  showAggregatedNode?: boolean;
 }
 
 function dfs(tree: NestTree, defaultExpandedDepth: number, depth: number) {
@@ -48,18 +49,25 @@ function dfsRender(
   measures: Measure[],
   depth: number,
   rows: ReactNodeArray[],
+  showAggregatedNode: boolean,
   callback: (path: number[]) => void
 ) {
   if (tree.expanded && tree.children && tree.children.length > 0) {
-    rows[depth].push(
-      <th
-        key={`${tree.path.join("-")}-${tree.id}-total`}
-        colSpan={measures.length}
-        rowSpan={rows.length - depth - 1}
-      >
-        {tree.id}{theme.summary.label}
-      </th>
-    );
+    if (showAggregatedNode) {
+      rows[depth].push(
+        <th
+          key={`${tree.path.join("-")}-${tree.id}-total`}
+          colSpan={measures.length}
+          rowSpan={rows.length - depth - 1}
+        >
+          {tree.id}{theme.summary.label}
+        </th>
+      );
+      measures.forEach(mea => {
+        rows[rows.length - 1].push(<th key={`${tree.path.join("-")}-${tree.id}-${mea.id}`} style={{ minWidth: `${mea.minWidth}px` }}>{mea.name}</th>);
+      });
+    }
+    
     rows[depth].push(
       <th
         key={`${tree.path.join("-")}-${tree.id}`}
@@ -73,11 +81,8 @@ function dfsRender(
         {tree.id}
       </th>
     );
-    measures.forEach(mea => {
-      rows[rows.length - 1].push(<th key={`${tree.path.join("-")}-${tree.id}-${mea.id}`} style={{ minWidth: `${mea.minWidth}px` }}>{mea.name}</th>);
-    });
     for (let child of tree.children) {
-      dfsRender(child, measures, depth + 1, rows, callback);
+      dfsRender(child, measures, depth + 1, rows, showAggregatedNode, callback);
     }
   } else {
     rows[depth].push(
@@ -102,7 +107,7 @@ function dfsRender(
 }
 
 const TopNestGrid: React.FC<TopNestGridProps> = props => {
-  let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth } = props;
+  let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth, showAggregatedNode } = props;
   const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
   useEffect(() => {
@@ -115,18 +120,18 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
     if (nestTree) {
       for (let i = 0; i <= depth + 1; i++) ans.push([]);
       // todo: bad side effect will change nestTree
-      dfsRender(nestTree, measures, 0, ans, repaint);
+      dfsRender(nestTree, measures, 0, ans, showAggregatedNode, repaint);
     }
     return ans;
-  }, [nestTree, repaint, measures]);
+  }, [nestTree, repaint, measures, showAggregatedNode]);
 
   useEffect(() => {
     if (onExpandChange) {
-      const lpList = transTree2LeafPathList(nestTree);
+      const lpList = transTree2LeafPathList(nestTree, showAggregatedNode);
       onExpandChange(lpList);
     }
     // measures caused by side effect of dfsRender.
-  }, [nestTree, measures]);
+  }, [nestTree, measures, showAggregatedNode]);
 
   useEffect(() => {
     if (onSizeChange) {

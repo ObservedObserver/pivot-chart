@@ -80,11 +80,17 @@ function transHashDFS (hashNode: HashTree, node: NestTree) {
   }
 }
 
-export function transTree2LeafPathList (tree: NestTree): string[][] {
+export function transTree2LeafPathList (tree: NestTree, hasAggChild: boolean): string[][] {
   let lpList: string[][] = [];
   // 根左右序
   const dfs = (node: NestTree, path: string[]) => {
-    lpList.push(path);
+    if (hasAggChild) {
+      lpList.push(path);
+    } else {
+      if (!(node.expanded && node.children && node.children.length > 0)) {
+        lpList.push(path);
+      }
+    }
     if (node.expanded && node.children && node.children.length > 0) {
       for (let child of node.children) {
         dfs(child, [...path, child.id]);

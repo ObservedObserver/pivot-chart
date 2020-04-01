@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree, Field, Measure, VisType } from './common';
+import { DataSource, NestTree, Field, DimensionArea, PivotBaseProps } from './common';
 import { createCube, sum } from 'cube-core';
 import { momentCube } from 'cube-core/built/core';
 import LeftNestGrid from './leftNestGrid';
@@ -11,16 +11,8 @@ import { getTheme } from './theme';
 
 const theme = getTheme();
 
-interface PivotChartProps {
-  dataSource: DataSource;
-  rows: Field[];
-  columns: Field[];
-  measures: Measure[];
-  visType?: VisType;
-  defaultExpandedDepth?: {
-    rowDepth: number;
-    columnDepth: number;
-  };
+interface PivotChartProps extends PivotBaseProps {
+  dataSource: DataSource
 }
 function useMetaTransform(rowList: Field[], columnList: Field[], measureList: Field[]) {
   const rows = useMemo<string[]>(() => rowList.map(f => f.id), [rowList])
@@ -38,6 +30,10 @@ const PivotChart: React.FC<PivotChartProps> = props => {
     defaultExpandedDepth = {
       rowDepth: 0,
       columnDepth: 1
+    },
+    showAggregatedNode = {
+      [DimensionArea.row]: true,
+      [DimensionArea.column]: true
     }
   } = props;
   const {
@@ -97,8 +93,10 @@ const PivotChart: React.FC<PivotChartProps> = props => {
             depth={nestRows.length}
             data={leftNestTree}
             onExpandChange={lpList => {
+              console.log('left lpl', lpList)
               setRowLPList(lpList);
             }}
+            showAggregatedNode={showAggregatedNode.row}
           />
         </div>
         <StyledTable>
@@ -113,6 +111,7 @@ const PivotChart: React.FC<PivotChartProps> = props => {
             onExpandChange={lpList => {
               setColumnLPList(lpList);
             }}
+            showAggregatedNode={showAggregatedNode.column}
           />
           <CrossTable
             visType={visType}

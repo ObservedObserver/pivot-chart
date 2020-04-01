@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { getTitanicData } from './mock';
-import { ToolBar, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field } from '../src/index';
+import { ToolBar, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field, AggNodeConfig } from '../src/index';
 import { TitanicCubeService } from './service';
 import { QueryPath, queryCube } from '../src/utils';
 
@@ -31,6 +31,8 @@ function AsyncApp () {
   const [fields, setFields] = useState<Field[]>([]);
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
+  const [aggNodeConfig, setAggNodeConfig] = useState<AggNodeConfig>({ row: false, column: false });
+
   useEffect(() => {
     const { dataSource, dimensions, measures } = getTitanicData();
     setData(dataSource);
@@ -48,13 +50,18 @@ function AsyncApp () {
   }, [])
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
-    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }}
+      showAggregatedNode={aggNodeConfig}
+      onShowAggNodeChange={value => {
+          setAggNodeConfig(value)
+        }
+      }
+    />
     {/* <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} /> */}
     <AsyncPivotChart
       visType={visType}
       rows={fstate['rows']}
       columns={fstate['columns']}
-      async={true}
       // branchFilters={[
       //   {
       //     id: 'Pclass',
@@ -67,6 +74,7 @@ function AsyncApp () {
         rowDepth: 20,
         columnDepth: 20
       }}
+      showAggregatedNode={aggNodeConfig}
       cubeQuery={cubeQuery}
       measures={measures} />
        {/* <AsyncPivotChart
