@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { getTitanicData } from './mock';
-import { ToolBar, PivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field } from '../src/index';
+import { ToolBar, PivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field, AggNodeConfig } from '../src/index';
 
 const initDraggableState: DraggableFieldState = {
   fields: [],
@@ -14,6 +14,8 @@ function SyncApp () {
   const [fields, setFields] = useState<Field[]>([]);
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
+  const [aggNodeConfig, setAggNodeConfig] = useState<AggNodeConfig>({ row: false, column: false });
+
   useEffect(() => {
     const { dataSource, dimensions, measures } = getTitanicData();
     setData(dataSource);
@@ -26,12 +28,19 @@ function SyncApp () {
   })), [fstate['measures']]);
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
-    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }}
+      showAggregatedNode={aggNodeConfig}
+      onShowAggNodeChange={value => {
+          setAggNodeConfig(value)
+        }
+      }
+    />
     <PivotChart
       defaultExpandedDepth={{
         rowDepth: 20,
         columnDepth: 20
       }}
+      showAggregatedNode={aggNodeConfig}
       visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
   </div>
 }

@@ -1,6 +1,6 @@
 import React, { useMemo, ReactNodeArray, useEffect } from 'react';
 import deepcopy from 'deepcopy';
-import { NestTree, VisType } from './common';
+import { NestTree, VisType, DimensionArea } from './common';
 import { useNestTree, transTree2LeafPathList } from './utils';
 import ExpandButton from './components/expandButton';
 import { StyledTable } from './components/styledTable';
@@ -13,6 +13,7 @@ interface LeftNestGridProps {
   depth: number;
   defaultExpandedDepth: number;
   onExpandChange?: (lpList: string[][]) => void;
+  showAggregatedNode?: boolean
 }
 
 function dfs (tree: NestTree, defaultExpandedDepth: number, depth: number) {
@@ -42,7 +43,7 @@ function getExpandedChildSize (tree: NestTree): number {
   return size;
 }
 
-function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray, callback: (path: number[]) => void) {
+function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray, showAggregatedNode: boolean, callback: (path: number[]) => void) {
   if (tree.expanded && tree.children && tree.children.length > 0) {
     rows.push(
       <tr key={`${tree.path.join('-')}-${tree.id}`}>
@@ -52,11 +53,11 @@ function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray,
         >
           <ExpandButton type={tree.expanded ? 'minus' : 'plus'} />&nbsp;{tree.id}
         </th>
-        <th colSpan={leftRowNumber}>{tree.id}{theme.summary.label}</th>
+      { showAggregatedNode && <th colSpan={leftRowNumber}>{tree.id}{theme.summary.label}</th> }
       </tr>
     );
     for (let child of tree.children) {
-      dfsRender(child, leftRowNumber - 1, rows, callback)
+      dfsRender(child, leftRowNumber - 1, rows, showAggregatedNode, callback)
     }
   } else {
     rows.push(
@@ -76,7 +77,7 @@ function dfsRender (tree: NestTree, leftRowNumber: number, rows: ReactNodeArray,
 }
 
 const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
-  let { data, depth, onExpandChange, visType, defaultExpandedDepth } = props
+  let { data, depth, onExpandChange, visType, defaultExpandedDepth, showAggregatedNode } = props
   const { nestTree, setNestTree, repaint } = useNestTree();
 
   useEffect(() => {
@@ -86,18 +87,18 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
 
   useEffect(() => {
     if (onExpandChange) {
-      const lpList = transTree2LeafPathList(nestTree);
+      const lpList = transTree2LeafPathList(nestTree, showAggregatedNode);
       onExpandChange(lpList);
     }
-  }, [nestTree])
+  }, [nestTree, showAggregatedNode])
 
   const renderTree = useMemo<ReactNodeArray>(() => {
     let ans: ReactNodeArray = [];
     if (nestTree) {
-      dfsRender(nestTree, depth, ans, repaint);
+      dfsRender(nestTree, depth, ans, showAggregatedNode, repaint);
     }
     return ans;
-  }, [nestTree, repaint])
+  }, [nestTree, repaint, showAggregatedNode])
 
   return <div>
     <StyledTable>

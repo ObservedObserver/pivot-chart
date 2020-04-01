@@ -1,17 +1,12 @@
-import React, { useMemo, useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree, Field, Measure, VisType, Record, Filter } from './common';
-import { createCube, sum } from 'cube-core';
-import { momentCube } from 'cube-core/built/core';
+import React, { useRef, useState, useEffect } from 'react';
+import { DataSource, NestTree, Record, Filter, DimensionArea, PivotBaseProps } from './common';
 import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
 import {
-  getPureNestTree,
-  getCossMatrix,
   useNestFields,
   QueryPath,
   AsyncCacheCube,
-  queryCube,
   cmpFunc
 } from "./utils";
 import { StyledTable } from './components/styledTable';
@@ -20,19 +15,10 @@ import { getTheme } from './theme';
 const theme = getTheme();
 
 
-interface AsyncPivotChartProps {
-  rows: Field[];
-  columns: Field[];
-  measures: Measure[];
-  visType?: VisType;
-  defaultExpandedDepth?: {
-    rowDepth: number;
-    columnDepth: number;
-  };
-  async?: boolean;
+interface AsyncPivotChartProps extends PivotBaseProps {
   cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
   branchFilters?: Filter[];
-  dimensionCompare?: cmpFunc
+  dimensionCompare?: cmpFunc;
 }
 
 const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
@@ -45,10 +31,13 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       rowDepth: 0,
       columnDepth: 1
     },
-    async,
     cubeQuery,
     branchFilters,
-    dimensionCompare
+    dimensionCompare,
+    showAggregatedNode = {
+      [DimensionArea.row]: true,
+      [DimensionArea.column]: true
+    }
   } = props;
   const {
     rowDepth: defaultRowDepth = 1,
@@ -144,6 +133,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
               bothUpdateFlag.current.leftCache = lpList;
               setRowLPList(lpList);
             }}
+            showAggregatedNode={showAggregatedNode.row}
           />
         </div>
         <StyledTable>
@@ -160,6 +150,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
               bothUpdateFlag.current.topCache = lpList;
               setColumnLPList(lpList);
             }}
+            showAggregatedNode={showAggregatedNode.column}
           />
           <CrossTable
             visType={visType}
