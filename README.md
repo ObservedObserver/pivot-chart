@@ -20,7 +20,8 @@ pivot chart also provide with basic pivot table components for you to build your
 
 ## Usage
 
-install npm package.
+<br />install npm package.<br />
+
 ```bash
 npm i --save pivot-chart
 
@@ -29,8 +30,9 @@ npm i --save pivot-chart
 yarn add pivot-chart
 ```
 
-basic usage.
-```js
+<br />basic usage.<br />
+
+```javascript
 import { PivotChart } from 'fast-pivot';
 
 function App () {
@@ -44,21 +46,194 @@ function App () {
 }
 ```
 
-custom themes
-```js
-Theme.registerTheme({
+<br />
+<br />
+<br />demo above can be run locally with<br />
+
+```bash
+# init development environment
+yarn workspace pivot-chart initenv
+# start dev server
+yarn workspace pivot-chart dev
+```
+
+
+<a name="API"></a>
+## API
+
+
+<a name="Types"></a>
+### Types
+| Type | Desc |
+| --- | --- |
+| Field | <br />- `id` <string><br />- `name` <string><br />- `aggName` <string> aggregator's name.<br />- `cmp` <(a: any, b: any) => number><br /> |
+| Measure | extends Field<br />- `aggregator` aggregator function.<br />- `minWidth` <number><br />- `formatter` <value: number> => number | string | ReactNode<br /> |
+| VisType | currently support `number` , `bar` , `line` , `scatter` . |
+| Record | a plain javascript object |
+| DataSource | `Record[]` , Array of Record. |
+| QueryNode | <br />- `dimCode` <string><br />- `dimValue` <string><br /> |
+| QueryPath | <QueryNode[]>.<br />example: `[{dimCode: 'Sex', dimValue: 'male'}, {dimCode: 'Age', dimValue:'*'}]`   |
+
+
+<br />
+
+<a name="jzdLj"></a>
+### common
+common interface are those used in both async pivot table and sync pivot table.
+
+- **rows**: `Field[]` dimensions in row. required
+- **columns**: `Field[]` dimensions in column.required
+- **measures**: `Measure[]` measures or indicators.required
+- **visType**: `VisType` mark type in cell. `number` as default(which is a common pivot table).optional
+- **defaultExpandedDepth**. default expanded level in row or column nest tree.optional
+  - defaultExpandedDepth.rowDepth: `number` 
+  - defaultExpandedDepth.columnDepth: `number` 
+- **showAggregatedNode**: `{row: boolean; column: boolean}` whether display aggregated node for each group. optional
+<a name="f7jCH"></a>
+#### SyncPivotTable
+
+- **dataSource**: `Record[]` . Array of record(normaly plain object). (json style data array). required
+
+
+<br />
+example:
+
+```javascript
+import React, { useEffect, useState, useMemo } from 'react';
+import ReactDOM from 'react-dom';
+import { getTitanicData } from './mock';
+import { ToolBar, PivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState } from '../src/index';
+
+const { dataSource, dimensions, measures } = getTitanicData();
+const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
+
+const initDraggableState: DraggableFieldState = {
+  fields: [],
+  rows: [],
+  columns: [],
+  measures: []
+};
+
+function App () {
+  const [data, setData] = useState<DataSource>([]);
+  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
+  const [visType, setVisType] = useState<VisType>('number');
+  useEffect(() => {
+    setData(dataSource);
+  }, [])
+  const measures = useMemo(() => fstate['measures'].map(f => ({
+    ...f,
+    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators]
+  })), [fstate['measures']]);
+  return <div>
+    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+  </div>
+}
+
+ReactDOM.render(<App />, document.getElementById('root'))
+```
+
+<a name="8ppwU"></a>
+
+#### AsyncPivotTable
+
+- **cubeQuery**: `(path: QueryPath, measures: string[]) => Promise;` . A function handle for cube query. path is the groupby dimension path(made of a series of dimension and its value). measures are the fields needed to be aggregated. required
+- **branchFilter**: bad api, not recommanded to use it. a fake filter whihc only control display of node and not influence the aggregated result of parent node. optional
+- **dimensionCompare**: `(a: string, b: string) => number` .compare function for sort of dimension node. optional
+
+
+
+```javascript
+function AsyncApp () {
+  
+  const [data, setData] = useState<DataSource>([]);
+  const [fields, setFields] = useState<Field[]>([]);
+  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
+  const [visType, setVisType] = useState<VisType>('number');
+  useEffect(() => {
+    const { dataSource, dimensions, measures } = getTitanicData();
+    setData(dataSource);
+    const fs: Field[] = [...dimensions, ...measures].map((f: string) => ({ id: f, name: f }));
+    setFields(fs);
+  }, [])
+  const measures = useMemo(() => fstate['measures'].map(f => ({
+    ...f,
+    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators],
+    minWidth: 100,
+    formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
+  })), [fstate['measures']]);
+  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
+    return TitanicCubeService(path.map(p => p.dimCode), measures);
+  }, [])
+  return <div>
+    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <AsyncPivotChart
+      visType={visType}
+      rows={fstate['rows']}
+      columns={fstate['columns']}
+      async
+      defaultExpandedDepth={{
+        rowDepth: 20,
+        columnDepth: 20
+      }}
+      cubeQuery={cubeQuery}
+      measures={measures} />
+  </div>
+}
+```
+
+
+<a name="yi5rr"></a>
+### Theme
+
+- Theme.registerTheme(theme: ThemeConfig)
+- `ThemeConfig` 
+
+
+
+```typescript
+interface ThemeConfig {
+  root?: {
+    display?: boolean,
+    label?: string
+  },
+  summary?: {
+    label?: string
+  },
+  table?: {
+    thead?: {
+      backgroundColor?: string;
+      color?: string;
+    }
+    borderColor?: string;
+    color?: string;
+  }
+}
+// default config
+const THEME_CONFIG: ThemeConfig = {
   root: {
     display: true,
-    label: 'root'
+    label: 'All'
   },
   summary: {
     label: '(total)'
+  },
+  table: {
+    thead: {
+      backgroundColor: '#E9EDF2',
+      color: '#5A6C84'
+    },
+    borderColor: '#DFE3E8',
+    color: '#333333'
   }
-})
+};
 ```
 
-Sync Cube Query:
-```js
+
+```javascript
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { getTitanicData } from './mock';
@@ -103,91 +278,16 @@ function App () {
 }
 
 ReactDOM.render(<App />, document.getElementById('root'))
-
 ```
 
-Async Cube Query
-```js
-function AsyncApp () {
-  
-  const [data, setData] = useState<DataSource>([]);
-  const [fields, setFields] = useState<Field[]>([]);
-  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
-  const [visType, setVisType] = useState<VisType>('number');
-  useEffect(() => {
-    const { dataSource, dimensions, measures } = getTitanicData();
-    setData(dataSource);
-    const fs: Field[] = [...dimensions, ...measures].map((f: string) => ({ id: f, name: f }));
-    setFields(fs);
-  }, [])
-  const measures = useMemo(() => fstate['measures'].map(f => ({
-    ...f,
-    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators],
-    minWidth: 100,
-    formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
-  })), [fstate['measures']]);
-  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
-    return TitanicCubeService(path.map(p => p.dimCode), measures);
-  }, [])
-  return <div>
-    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
-    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
-    <AsyncPivotChart
-      visType={visType}
-      rows={fstate['rows']}
-      columns={fstate['columns']}
-      async
-      defaultExpandedDepth={{
-        rowDepth: 20,
-        columnDepth: 20
-      }}
-      cubeQuery={cubeQuery}
-      measures={measures} />
-  </div>
-}
-```
 
-demo above can be run locally with
-```bash
-# init development environment
-yarn workspace pivot-chart initenv
-# start dev server
-yarn workspace pivot-chart dev
-```
-
-## API
-```js
-interface PivotChartProps {
-  dataSource: DataSource;
-  rows: Field[];
-  columns: Field[];
-  measures: Measure[];
-  visType?: VisType;
-  defaultExpandedDepth?: {
-    rowDepth: number;
-    columnDepth: number;
-  };
-  async?: false;
-  cubeQuery?: (path: QueryPath) => Promise<DataSource>;
-}
-```
-
-```js
-interface AsyncPivotChartProps {
-  rows: Field[];
-  columns: Field[];
-  measures: Measure[];
-  visType?: VisType;
-  defaultExpandedDepth?: {
-    rowDepth: number;
-    columnDepth: number;
-  };
-  async?: boolean;
-  cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
-  branchFilters?: Filter[];
-  dimensionCompare?: cmpFunc
-}
-```
-
+<a name="JX52R"></a>
 ## Others
-another implementation of cube-core pivot-table can be found as `./packages/demo`
+
+<br />another implementation of cube-core pivot-table can be found as `./packages/demo`<br />
+
+<a name="OPzwK"></a>
+### Common Question
+> SyncPivotChart vs. AsyncPivotChart ?
+
+Sync Pivot Chart does all cube computaion in frontend.(In future, it may do those work in webworker and it will seems to be async). Those cube query can be speeded up by `cube-core` which can reuse similarly groupby result.<br />Async Pivot Chart can use cube query from server or customed implementation(either on server or browser, async or sync), but developer need to figure out how to speed up those by themsleves.

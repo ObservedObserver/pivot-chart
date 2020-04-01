@@ -93,7 +93,6 @@ const PivotChart: React.FC<PivotChartProps> = props => {
             depth={nestRows.length}
             data={leftNestTree}
             onExpandChange={lpList => {
-              console.log('left lpl', lpList)
               setRowLPList(lpList);
             }}
             showAggregatedNode={showAggregatedNode.row}

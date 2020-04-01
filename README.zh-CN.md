@@ -19,9 +19,10 @@
 | 自定义度量的聚合方式 | ![ustom aggregator of measures.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-aggregator.gif) |
 | 数据透视表/使用不同的可视化类型 | ![different visualization type.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-chart-light.gif)<br /> <img width="100%" src="https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-chart-static-bar.jpg" /> |
 
-## 使用
+## Usage
 
-安装npm包.
+<br />install npm package.<br />
+
 ```bash
 npm i --save pivot-chart
 
@@ -30,8 +31,9 @@ npm i --save pivot-chart
 yarn add pivot-chart
 ```
 
-使用组件
-```js
+<br />basic usage.<br />
+
+```javascript
 import { PivotChart } from 'fast-pivot';
 
 function App () {
@@ -45,21 +47,192 @@ function App () {
 }
 ```
 
-自定义主题/配置
-```js
-Theme.registerTheme({
+<br />
+<br />
+<br />demo above can be run locally with<br />
+
+```bash
+# init development environment
+yarn workspace pivot-chart initenv
+# start dev server
+yarn workspace pivot-chart dev
+```
+
+
+<a name="API"></a>
+## API
+
+
+<a name="Types"></a>
+### Types
+| Type | Desc |
+| --- | --- |
+| Field | <br />- `id` <string><br />- `name` <string><br />- `aggName` <string> aggregator's name.<br />- `cmp` <(a: any, b: any) => number><br /> |
+| Measure | extends Field<br />- `aggregator` aggregator function.<br />- `minWidth` <number><br />- `formatter` <value: number> => number | string | ReactNode<br /> |
+| VisType | currently support `number` , `bar` , `line` , `scatter` . |
+| Record | a plain javascript object |
+| DataSource | `Record[]` , Array of Record. |
+| QueryNode | <br />- `dimCode` <string><br />- `dimValue` <string><br /> |
+| QueryPath | <QueryNode[]>.<br />example: `[{dimCode: 'Sex', dimValue: 'male'}, {dimCode: 'Age', dimValue:'*'}]`   |
+
+
+<br />
+
+<a name="jzdLj"></a>
+### 公共接口
+所有透视表组件的公共接口
+
+- **rows**: `Field[]` 行维度. required
+- **columns**: `Field[]` 列维度.required
+- **measures**: `Measure[]` 度量/指标.required
+- **visType**: `VisType` 单元格里的标记类型（可以理解为图表类型）. `number` as default(此时是常规的透视表).optional
+- **defaultExpandedDepth**. 行维度树或列维度树的默认展开层数.optional
+  - defaultExpandedDepth.rowDepth: `number` 
+  - defaultExpandedDepth.columnDepth: `number` 
+- **showAggregatedNode**: `{row: boolean; column: boolean}`是否展示汇总节点. optional
+<a name="f7jCH"></a>
+#### SyncPivotTable
+
+- **dataSource**: `Record[]` . 数据源，一个类json的对象数组. required
+
+
+<br />
+example:
+
+```javascript
+import React, { useEffect, useState, useMemo } from 'react';
+import ReactDOM from 'react-dom';
+import { getTitanicData } from './mock';
+import { ToolBar, PivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState } from '../src/index';
+
+const { dataSource, dimensions, measures } = getTitanicData();
+const fields = dimensions.concat(measures).map(f => ({ id: f, name: f }));
+
+const initDraggableState: DraggableFieldState = {
+  fields: [],
+  rows: [],
+  columns: [],
+  measures: []
+};
+
+function App () {
+  const [data, setData] = useState<DataSource>([]);
+  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
+  const [visType, setVisType] = useState<VisType>('number');
+  useEffect(() => {
+    setData(dataSource);
+  }, [])
+  const measures = useMemo(() => fstate['measures'].map(f => ({
+    ...f,
+    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators]
+  })), [fstate['measures']]);
+  return <div>
+    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} />
+  </div>
+}
+
+ReactDOM.render(<App />, document.getElementById('root'))
+```
+<a name="8ppwU"></a>
+#### AsyncPivotTable
+
+- **cubeQuery**: `(path: QueryPath, measures: string[]) => Promise;` . 处理cube计算服务的函数. path 是维度分组的路径，由一系列的维度和维度成员值构成. 度量是需要进行聚合计算的度量字段. required
+- **branchFilter**: bad api, not recommanded to use it. a fake filter whihc only control display of node and not influence the aggregated result of parent node. optional
+- **dimensionCompare**: `(a: string, b: string) => number` .对维度进行排序的比较函数、默认是字典序. optional
+
+
+
+```javascript
+function AsyncApp () {
+  
+  const [data, setData] = useState<DataSource>([]);
+  const [fields, setFields] = useState<Field[]>([]);
+  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
+  const [visType, setVisType] = useState<VisType>('number');
+  useEffect(() => {
+    const { dataSource, dimensions, measures } = getTitanicData();
+    setData(dataSource);
+    const fs: Field[] = [...dimensions, ...measures].map((f: string) => ({ id: f, name: f }));
+    setFields(fs);
+  }, [])
+  const measures = useMemo(() => fstate['measures'].map(f => ({
+    ...f,
+    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators],
+    minWidth: 100,
+    formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
+  })), [fstate['measures']]);
+  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
+    return TitanicCubeService(path.map(p => p.dimCode), measures);
+  }, [])
+  return <div>
+    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
+    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
+    <AsyncPivotChart
+      visType={visType}
+      rows={fstate['rows']}
+      columns={fstate['columns']}
+      async
+      defaultExpandedDepth={{
+        rowDepth: 20,
+        columnDepth: 20
+      }}
+      cubeQuery={cubeQuery}
+      measures={measures} />
+  </div>
+}
+```
+
+
+<a name="yi5rr"></a>
+### Theme
+
+- Theme.registerTheme(theme: ThemeConfig)
+- `ThemeConfig` 
+
+
+
+```typescript
+interface ThemeConfig {
+  root?: {
+    display?: boolean,
+    label?: string
+  },
+  summary?: {
+    label?: string
+  },
+  table?: {
+    thead?: {
+      backgroundColor?: string;
+      color?: string;
+    }
+    borderColor?: string;
+    color?: string;
+  }
+}
+// default config
+const THEME_CONFIG: ThemeConfig = {
   root: {
     display: true,
-    label: 'root'
+    label: 'All'
   },
   summary: {
     label: '(total)'
+  },
+  table: {
+    thead: {
+      backgroundColor: '#E9EDF2',
+      color: '#5A6C84'
+    },
+    borderColor: '#DFE3E8',
+    color: '#333333'
   }
-})
+};
 ```
 
-同步计算:
-```js
+
+```javascript
 import React, { useEffect, useState, useMemo } from 'react';
 import ReactDOM from 'react-dom';
 import { getTitanicData } from './mock';
@@ -107,88 +280,12 @@ ReactDOM.render(<App />, document.getElementById('root'))
 ```
 
 
-异步计算
-```js
-function AsyncApp () {
-  
-  const [data, setData] = useState<DataSource>([]);
-  const [fields, setFields] = useState<Field[]>([]);
-  const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
-  const [visType, setVisType] = useState<VisType>('number');
-  useEffect(() => {
-    const { dataSource, dimensions, measures } = getTitanicData();
-    setData(dataSource);
-    const fs: Field[] = [...dimensions, ...measures].map((f: string) => ({ id: f, name: f }));
-    setFields(fs);
-  }, [])
-  const measures = useMemo(() => fstate['measures'].map(f => ({
-    ...f,
-    aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators],
-    minWidth: 100,
-    formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
-  })), [fstate['measures']]);
-  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
-    return TitanicCubeService(path.map(p => p.dimCode), measures);
-  }, [])
-  return <div>
-    <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
-    <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
-    <AsyncPivotChart
-      visType={visType}
-      rows={fstate['rows']}
-      columns={fstate['columns']}
-      async
-      defaultExpandedDepth={{
-        rowDepth: 20,
-        columnDepth: 20
-      }}
-      cubeQuery={cubeQuery}
-      measures={measures} />
-  </div>
-}
-```
-
-你也可以将上面👆的demo在本地运行
-```bash
-# 初始化开发环境
-yarn workspace pivot-chart initenv
-# 启动dev server
-yarn workspace pivot-chart dev
-```
-
-## API
-```js
-interface PivotChartProps {
-  dataSource: DataSource;
-  rows: Field[];
-  columns: Field[];
-  measures: Measure[];
-  visType?: VisType;
-  defaultExpandedDepth?: {
-    rowDepth: number;
-    columnDepth: number;
-  };
-  async?: false;
-  cubeQuery?: (path: QueryPath) => Promise<DataSource>;
-}
-```
-
-```js
-interface AsyncPivotChartProps {
-  rows: Field[];
-  columns: Field[];
-  measures: Measure[];
-  visType?: VisType;
-  defaultExpandedDepth?: {
-    rowDepth: number;
-    columnDepth: number;
-  };
-  async?: boolean;
-  cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
-  branchFilters?: Filter[];
-  dimensionCompare?: cmpFunc
-}
-```
-
 ## 其他碎碎念
 另一个数据透视表的实现可以参考 `./packages/demo`
+
+### Common Question
+> SyncPivotChart vs. AsyncPivotChart ?
+
+Sync Pivot Chart 的计算都发生在前端。这里叫sync其实有点不合适，因为后续优化这些计算也可以发生在webworker中。sync Pivot Chart中的cube计算借助了cube-core包，这使得前期可以利用计算过的分组结果，在具有行维度和列维度的情况下性能可以大幅提升。
+
+Async Pivot Chart的cube计算是服务端或用户自己提供的。组件本身会帮助用户缓存一些已经计算过的结果，所以重复的查询会比较少，但相似的查询之间公共结果的复用仍需要用户自己实现。
