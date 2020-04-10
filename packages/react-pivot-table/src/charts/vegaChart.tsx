@@ -3,12 +3,15 @@ import embed from 'vega-embed';
 import { DataSource } from '../common';
 import { AnyMark } from 'vega-lite/build/src/mark';
 import { VisType } from '../common';
+import { Scale } from '../lib/scale/inedx';
 
 interface VegaProps {
   markType: string;
   dataSource: DataSource;
   x: string;
   y: string;
+  xScale: Scale;
+  yScale: Scale;
   // onHeightChange?: (height: number) => void;
 }
 const visMapper: {[key: string]: AnyMark} = {
@@ -20,7 +23,7 @@ function visType2MarkType (visType: string): AnyMark {
   return visMapper[visType] || 'tick';
 }
 const VegaChart: React.FC<VegaProps> = props => {
-  const { x = 'null', y = 'null', dataSource = [], markType } = props;
+  const { x = 'null', y = 'null', dataSource = [], markType, xScale, yScale} = props;
   const container = useRef<HTMLDivElement>();
 
   useEffect(() => {
@@ -34,11 +37,17 @@ const VegaChart: React.FC<VegaProps> = props => {
         encoding: {
           x: {
             type: markType === 'scatter' ? 'quantitative' : 'nominal',
-            field: x
+            field: x,
+            scale: xScale && {
+              domain: xScale.domain
+            }
           },
           y: {
             type: 'quantitative',
-            field: y
+            field: y,
+            scale: yScale && {
+              domain: yScale.domain
+            }
           }
         }
       }, {
@@ -51,7 +60,7 @@ const VegaChart: React.FC<VegaProps> = props => {
         // }
       })
     }
-  }, [x, y, dataSource])
+  }, [x, y, dataSource, xScale, yScale])
   return <div ref={container}></div>
 }
 
