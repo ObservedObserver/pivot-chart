@@ -196,11 +196,12 @@ export function getCossMatrix(visType: VisType, cube: momentCube, rowLPList: str
       switch (visType) {
         case 'bar':
         case 'line':
+        case 'scatter':
           crossMatrix[i].push(aggregateOnGroupBy(result, dimensionsInView, measures));
           break;
-        case 'scatter':
-          crossMatrix[i].push(result);
-          break;
+        // case 'scatter':
+        //   crossMatrix[i].push(result);
+        //   break;
         case 'number':
         default:
           crossMatrix[i].push(aggregateAll(result, measures));
@@ -240,11 +241,11 @@ export function getNestFields(visType: VisType, rows: Field[], columns: Field[],
     case 'scatter':
       return {
         nestRows: rows,
-        nestColumns: columns,
-        dimensionsInView: [],
+        nestColumns: columns.slice(0, -1),
+        dimensionsInView: columns.slice(-1),
         facetMeasures: measures,
-        viewMeasures: measures.slice(-1)
-      }
+        viewMeasures: measures.slice(-1),
+      };
     default:
       return {
         nestRows: rows,
@@ -259,7 +260,7 @@ export function getNestFields(visType: VisType, rows: Field[], columns: Field[],
 export function useNestFields (visType: VisType, rows: Field[], columns: Field[], measures: Measure[]): NestFields {
   const nestRows = rows;
   const { nestColumns, dimensionsInView } = useMemo(() => {
-    if (visType === 'line' || visType === 'bar') {
+    if (visType !== 'number') {
       return {
         nestColumns: columns.slice(0, -1),
         dimensionsInView: columns.slice(-1)
