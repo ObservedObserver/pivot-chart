@@ -54,11 +54,9 @@ const CrossTable: React.FC<CrossTableProps> = props => {
       // todo: scale for number case. used for heatmap in future
       return null
     } else {
-      console.log('matrix', matrix)
       return getVisualScale(matrix as Record[][][], dimensionsInView, measures.concat(measuresInView));
     }
   }, [matrix, visType])
-  console.log(visualScale);
   return (
     <tbody className="vis">
       {matrix.map((row, rIndex) => {
