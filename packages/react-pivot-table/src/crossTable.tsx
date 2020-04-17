@@ -12,7 +12,8 @@ interface CrossTableProps {
 }
 function getCellContent(visType: VisType, cell: Record | Record[], facetMeasure: Measure, dimensionsInView: Field[], measuresInView: Measure[], visualScale: VisualScaleSpace | null): ReactNode {
   const viewDimCode = dimensionsInView.length > 0 ? dimensionsInView[0].id : 'total';
-  switch (visType) {
+  const safeVisType: VisType = visualScale === null ? 'number' : visType;
+  switch (safeVisType) {
     case 'bar':
     case 'line':
       return (<div className="vis-container">
@@ -54,9 +55,10 @@ const CrossTable: React.FC<CrossTableProps> = props => {
       // todo: scale for number case. used for heatmap in future
       return null
     } else {
+      console.log('matrix', matrix, visType, dimensionsInView, measuresInView)
       return getVisualScale(matrix as Record[][][], dimensionsInView, measures.concat(measuresInView));
     }
-  }, [matrix, visType])
+  }, [matrix])
   return (
     <tbody className="vis">
       {matrix.map((row, rIndex) => {

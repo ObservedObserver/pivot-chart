@@ -52,9 +52,9 @@ function App () {
 
 ```bash
 # init development environment
-yarn workspace pivot-chart initenv
+yarn workspace react-pivot-table initenv
 # start dev server
-yarn workspace pivot-chart dev
+yarn workspace react-pivot-table dev
 ```
 
 
