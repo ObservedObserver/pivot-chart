@@ -60,7 +60,9 @@ const CrossTable: React.FC<CrossTableProps> = props => {
     }
   }, [matrix])
   return (
-    <tbody className="vis">
+    <tbody className="vis" onScroll={(e) => {
+      console.log(e);
+    }}>
       {matrix.map((row, rIndex) => {
         return (
           <tr key={rIndex}>

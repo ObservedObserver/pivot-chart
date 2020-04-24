@@ -116,26 +116,97 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   }, [measures, rowLPList, columnLPList, visType])
   return (
     <div
-      style={{ border: `1px solid ${theme.table.borderColor}`, overflow: 'auto' }}
+      style={{
+        border: `1px solid ${theme.table.borderColor}`,
+        overflow: "auto",
+        position: "relative",
+      }}
     >
-      <div style={{ display: "flex", flexWrap: "nowrap" }}>
-        <div>
-          <div
-            style={{ height: emptyGridHeight, backgroundColor: theme.table.thead.backgroundColor }}
-          ></div>
-          <LeftNestGrid
-            defaultExpandedDepth={defaultRowDepth}
-            visType={visType}
-            depth={nestRows.length}
-            data={leftNestTree}
-            onExpandChange={lpList => {
-              bothUpdateFlag.current.left = true;
-              bothUpdateFlag.current.leftCache = lpList;
-              setRowLPList(lpList);
-            }}
-            showAggregatedNode={showAggregatedNode.row}
-          />
+      <div
+        style={{
+          overflow: "auto",
+          height: "500px",
+          position: "relative",
+        }}
+      >
+        <div style={{ display: "flex", flexWrap: "nowrap" }}>
+          <div style={{ position: "sticky", left: "0px" }}>
+            <div
+              style={{
+                height: emptyGridHeight,
+                backgroundColor: theme.table.thead.backgroundColor,
+              }}
+            ></div>
+            <LeftNestGrid
+              defaultExpandedDepth={defaultRowDepth}
+              visType={visType}
+              depth={nestRows.length}
+              data={leftNestTree}
+              onExpandChange={(lpList) => {
+                bothUpdateFlag.current.left = true;
+                bothUpdateFlag.current.leftCache = lpList;
+                setRowLPList(lpList);
+              }}
+              showAggregatedNode={showAggregatedNode.row}
+            />
+          </div>
+          <StyledTable>
+            <TopNestGrid
+              defaultExpandedDepth={defaultColumnDepth}
+              depth={nestColumns.length}
+              measures={measures}
+              data={topNestTree}
+              onSizeChange={(w, h) => {
+                setEmptyGridHeight(h);
+              }}
+              onExpandChange={(lpList) => {
+                bothUpdateFlag.current.top = true;
+                bothUpdateFlag.current.topCache = lpList;
+                setColumnLPList(lpList);
+              }}
+              showAggregatedNode={showAggregatedNode.column}
+            />
+            <CrossTable
+              visType={visType}
+              matrix={crossMatrix}
+              measures={facetMeasures}
+              dimensionsInView={dimensionsInView}
+              measuresInView={viewMeasures}
+            />
+          </StyledTable>
         </div>
+        {/* <StyledTable style={{ position: "sticky", top: "0px" }}>
+            <TopNestGrid
+              defaultExpandedDepth={defaultColumnDepth}
+              depth={nestColumns.length}
+              measures={measures}
+              data={topNestTree}
+              onSizeChange={(w, h) => {
+                setEmptyGridHeight(h);
+              }}
+              onExpandChange={(lpList) => {
+                bothUpdateFlag.current.top = true;
+                bothUpdateFlag.current.topCache = lpList;
+                setColumnLPList(lpList);
+              }}
+              showAggregatedNode={showAggregatedNode.column}
+            />
+          </StyledTable> */}
+      </div>
+      <div
+        style={{
+          position: "absolute",
+          top: "0px",
+          display: "flex",
+          flexWrap: "nowrap",
+        }}
+      >
+        <div
+          style={{
+            height: emptyGridHeight,
+            backgroundColor: theme.table.thead.backgroundColor,
+          }}
+        ></div>
         <StyledTable>
           <TopNestGrid
             defaultExpandedDepth={defaultColumnDepth}
@@ -145,19 +216,12 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
             onSizeChange={(w, h) => {
               setEmptyGridHeight(h);
             }}
-            onExpandChange={lpList => {
+            onExpandChange={(lpList) => {
               bothUpdateFlag.current.top = true;
               bothUpdateFlag.current.topCache = lpList;
               setColumnLPList(lpList);
             }}
             showAggregatedNode={showAggregatedNode.column}
-          />
-          <CrossTable
-            visType={visType}
-            matrix={crossMatrix}
-            measures={facetMeasures}
-            dimensionsInView={dimensionsInView}
-            measuresInView={viewMeasures}
           />
         </StyledTable>
       </div>

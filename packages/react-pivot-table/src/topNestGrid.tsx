@@ -15,6 +15,7 @@ interface TopNestGridProps {
   onExpandChange?: (lpList: string[][]) => void;
   defaultExpandedDepth: number;
   showAggregatedNode?: boolean;
+  fixed?: boolean;
 }
 
 function dfs(tree: NestTree, defaultExpandedDepth: number, depth: number) {
@@ -106,8 +107,11 @@ function dfsRender(
   }
 }
 
+const NORMAL_STYLE = { border: "1px solid #000" };
+const FIXED_STYLE = { border: "1px solid #000", position: 'sticky', top: '0px' }
+
 const TopNestGrid: React.FC<TopNestGridProps> = props => {
-  let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth, showAggregatedNode } = props;
+  let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth, showAggregatedNode, fixed } = props;
   const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
   useEffect(() => {
@@ -143,7 +147,7 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
   });
 
   return (
-    <thead ref={container} style={{ border: "1px solid #000" }}>
+    <thead ref={container} style={fixed ? FIXED_STYLE : NORMAL_STYLE}>
       {renderTree.map((row, index) => (
         <tr key={`row-${index}`}>{row}</tr>
       ))}
