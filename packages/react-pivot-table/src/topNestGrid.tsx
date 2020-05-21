@@ -1,6 +1,6 @@
 import React, { useMemo, ReactNodeArray, useEffect, useRef } from "react";
 import deepcopy from "deepcopy";
-import { useNestTree, transTree2LeafPathList } from "./utils";
+import { useNestTree, transTree2LeafPathList, labelHighlightNode, clearHighlight } from "./utils";
 import { NestTree, Measure } from "./common";
 import ExpandButton from "./components/expandButton";
 import { getTheme } from "./theme";
@@ -15,14 +15,18 @@ interface TopNestGridProps {
   onExpandChange?: (lpList: string[][], nestTree: NestTree) => void;
   defaultExpandedDepth: number;
   showAggregatedNode?: boolean;
+  highlightPathList?: any[][];
 }
 
 function dfs(tree: NestTree, defaultExpandedDepth: number, depth: number) {
   tree.expanded = (depth < defaultExpandedDepth);
+  tree.isHighlight = false;
   tree.path ? null : (tree.path = []);
+  tree.valuePath ? null : tree.valuePath = [];
   if (tree.children && tree.children.length > 0) {
     tree.children.forEach((child, index) => {
       child.path = [...(tree.path || []), index];
+      child.valuePath = [...(tree.valuePath || []), index]
       dfs(child, defaultExpandedDepth, depth + 1);
     });
   }
@@ -75,6 +79,7 @@ function dfsRender(
           callback(tree.path);
         }}
         colSpan={(measures.length || 1) * (getExpandedChildSize(tree) - 1)}
+        className={tree.isHighlight ? 'highlight' : undefined}
       >
         <ExpandButton type={tree.expanded ? "minus" : "plus"} />
         &nbsp;
@@ -93,6 +98,7 @@ function dfsRender(
         onClick={() => {
           callback(tree.path);
         }}
+        className={tree.isHighlight ? 'highlight' : undefined}
       >
         { tree.children && tree.children.length > 0 && <ExpandButton type={tree.expanded ? 'minus' : 'plus'} /> }
         &nbsp;{tree.id}
@@ -107,7 +113,16 @@ function dfsRender(
 }
 
 const TopNestGrid: React.FC<TopNestGridProps> = props => {
-  let { data, depth, measures, onSizeChange, onExpandChange, defaultExpandedDepth, showAggregatedNode } = props;
+  let {
+    data,
+    depth,
+    measures,
+    onSizeChange,
+    onExpandChange,
+    defaultExpandedDepth,
+    showAggregatedNode,
+    highlightPathList = []
+  } = props;
   const container = useRef<HTMLTableSectionElement>();
   const { nestTree, setNestTree, repaint } = useNestTree();
   useEffect(() => {
@@ -118,12 +133,16 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
   const renderTree = useMemo<ReactNodeArray[]>(() => {
     let ans: ReactNodeArray[] = [];
     if (nestTree) {
+      clearHighlight(nestTree);
+      highlightPathList.forEach((path) => {
+        labelHighlightNode(nestTree, [], path, 0);
+      });
       for (let i = 0; i <= depth + 1; i++) ans.push([]);
       // todo: bad side effect will change nestTree
       dfsRender(nestTree, measures, 0, ans, showAggregatedNode, repaint);
     }
     return ans;
-  }, [nestTree, repaint, measures, showAggregatedNode]);
+  }, [nestTree, repaint, measures, showAggregatedNode, highlightPathList]);
 
   useEffect(() => {
     if (onExpandChange) {

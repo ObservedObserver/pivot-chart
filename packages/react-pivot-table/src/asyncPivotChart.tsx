@@ -21,6 +21,7 @@ interface AsyncPivotChartProps extends PivotBaseProps {
   dimensionCompare?: cmpFunc;
   onNestTreeChange?: (leftTree: NestTree, topTree: NestTree) => void;
   cubeRef?: { current: AsyncCacheCube };
+  highlightPathList?: any[][];
 }
 
 const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
@@ -41,7 +42,8 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       [DimensionArea.column]: true
     },
     onNestTreeChange,
-    cubeRef
+    cubeRef,
+    highlightPathList = []
   } = props;
   const {
     rowDepth: defaultRowDepth = 1,
@@ -146,6 +148,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
               expandedNestTrees.current.left = tree;
             }}
             showAggregatedNode={showAggregatedNode.row}
+            highlightPathList={highlightPathList}
           />
         </div>
         <StyledTable>
@@ -164,6 +167,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
               expandedNestTrees.current.top = tree;
             }}
             showAggregatedNode={showAggregatedNode.column}
+            highlightPathList={highlightPathList}
           />
           <CrossTable
             visType={visType}

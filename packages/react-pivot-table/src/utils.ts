@@ -421,3 +421,32 @@ export class AsyncCacheCube {
     return crossMatrix;
   }
 }
+
+export function arrayEqual(arr1: any[], arr2: any[]): boolean {
+  if (arr1.length !== arr2.length) return false;
+  for (let i = 0; i < arr1.length; i++) {
+    if (arr1[i] !== arr2[i]) return false;
+  }
+  return true;
+}
+
+export function labelHighlightNode(tree: NestTree, valuePath: any[], hlPath: any[], depth: number): void {
+  tree.isHighlight = true;
+  if (tree.children) {
+    for (let child of tree.children) {
+      // == not ===
+      if (child.id == hlPath[depth]) {
+        labelHighlightNode(child, [...valuePath, child.id], hlPath, depth + 1);
+      }
+    }
+  }
+}
+
+export function clearHighlight(tree: NestTree): void {
+  tree.isHighlight = false;
+  if (tree.children) {
+    for (let child of tree.children) {
+      clearHighlight(child);
+    }
+  }
+}

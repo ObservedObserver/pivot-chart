@@ -11,6 +11,8 @@ export interface NestTree {
   children?: NestTree[];
   expanded?: boolean;
   path?: number[];
+  valuePath?: any[];
+  isHighlight?: boolean;
 }
 
 export interface Field {

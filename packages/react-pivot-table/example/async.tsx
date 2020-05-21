@@ -81,6 +81,7 @@ function AsyncApp () {
       }}
       showAggregatedNode={aggNodeConfig}
       cubeQuery={cubeQuery}
+      highlightPathList={[['female', 'Q', 1]]}
       measures={measures} />
        {/* <AsyncPivotChart
       measures={[{ id: 'Survived', name: 'survived', aggName: 'sum' }]}

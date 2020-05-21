@@ -7,6 +7,7 @@ interface ThemeConfig {
     label?: string
   },
   table?: {
+    highlightBGColor?: string;
     thead?: {
       backgroundColor?: string;
       color?: string;
@@ -25,6 +26,7 @@ const THEME_CONFIG: ThemeConfig = {
     label: '(total)'
   },
   table: {
+    highlightBGColor: '#fff0f6',
     thead: {
       backgroundColor: '#E9EDF2',
       color: '#5A6C84'
@@ -58,6 +60,7 @@ function getInitTheme (): ThemeConfig {
       label: '(total)'
     },
     table: {
+      highlightBGColor: '#fff0f6',
       thead: {
         backgroundColor: '#E9EDF2',
         color: '#5A6C84'

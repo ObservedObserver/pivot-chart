@@ -32,6 +32,9 @@ export const StyledTable = styled.table`
       border: solid 1px ${props => theme.table.borderColor};
       box-sizing: content-box;
     }
+    th.highlight {
+      background-color: ${props => theme.table.highlightBGColor};
+    }
   }
   thead.vis {
     th{
