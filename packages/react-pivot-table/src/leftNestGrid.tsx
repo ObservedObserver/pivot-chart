@@ -12,7 +12,7 @@ interface LeftNestGridProps {
   visType: VisType;
   depth: number;
   defaultExpandedDepth: number;
-  onExpandChange?: (lpList: string[][]) => void;
+  onExpandChange?: (lpList: string[][], nestTree: NestTree) => void;
   showAggregatedNode?: boolean
 }
 
@@ -88,7 +88,7 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = props => {
   useEffect(() => {
     if (onExpandChange) {
       const lpList = transTree2LeafPathList(nestTree, showAggregatedNode);
-      onExpandChange(lpList);
+      onExpandChange(lpList, nestTree);
     }
   }, [nestTree, showAggregatedNode])
 

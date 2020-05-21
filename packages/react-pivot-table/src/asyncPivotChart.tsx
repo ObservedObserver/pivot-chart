@@ -19,6 +19,8 @@ interface AsyncPivotChartProps extends PivotBaseProps {
   cubeQuery: (path: QueryPath, measures: string[]) => Promise<DataSource>;
   branchFilters?: Filter[];
   dimensionCompare?: cmpFunc;
+  onNestTreeChange?: (leftTree: NestTree, topTree: NestTree) => void;
+  cubeRef?: { current: AsyncCacheCube };
 }
 
 const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
@@ -37,7 +39,9 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
     showAggregatedNode = {
       [DimensionArea.row]: true,
       [DimensionArea.column]: true
-    }
+    },
+    onNestTreeChange,
+    cubeRef
   } = props;
   const {
     rowDepth: defaultRowDepth = 1,
@@ -67,6 +71,7 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
   const [leftNestTree, setLeftNestTree] = useState<NestTree>({ id: 'root' });
   const [topNestTree, setTopNestTree] = useState<NestTree>({ id: 'root' });
   const [crossMatrix, setCrossMatrix] = useState<Record[][] | Record[][][]>([]);
+  const expandedNestTrees = useRef<{left: NestTree; top: NestTree}>({ left: null, top: null });
 
   const {
     nestRows,
@@ -80,6 +85,9 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       asyncCubeQuery: cubeQuery,
       cmp: dimensionCompare
     })
+    if (cubeRef) {
+      cubeRef.current = asyncCubeRef.current
+    }
   }, [cubeQuery, dimensionCompare])
 
   useEffect(() => {
@@ -110,6 +118,9 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
       asyncCubeRef.current.requestCossMatrix(visType, bothUpdateFlag.current.leftCache, bothUpdateFlag.current.topCache, rows, columns, measures, dimensionsInView).then(matrix => {
         if (requestIndex.current.matrix === id) {
           setCrossMatrix(matrix);
+          if (onNestTreeChange && expandedNestTrees.current.left && expandedNestTrees.current.top) {
+            onNestTreeChange(expandedNestTrees.current.left, expandedNestTrees.current.top);
+          }
         }
       })
     }
@@ -128,10 +139,11 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
             visType={visType}
             depth={nestRows.length}
             data={leftNestTree}
-            onExpandChange={lpList => {
+            onExpandChange={(lpList, tree) => {
               bothUpdateFlag.current.left = true;
               bothUpdateFlag.current.leftCache = lpList;
               setRowLPList(lpList);
+              expandedNestTrees.current.left = tree;
             }}
             showAggregatedNode={showAggregatedNode.row}
           />
@@ -145,10 +157,11 @@ const AsyncPivotChart: React.FC<AsyncPivotChartProps> = props => {
             onSizeChange={(w, h) => {
               setEmptyGridHeight(h);
             }}
-            onExpandChange={lpList => {
+            onExpandChange={(lpList, tree) => {
               bothUpdateFlag.current.top = true;
               bothUpdateFlag.current.topCache = lpList;
               setColumnLPList(lpList);
+              expandedNestTrees.current.top = tree;
             }}
             showAggregatedNode={showAggregatedNode.column}
           />

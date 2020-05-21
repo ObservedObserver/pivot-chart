@@ -5,6 +5,7 @@ import DragableFields, { DraggableFieldState } from './dragableFields/index';
 import  { StyledTable } from './components/styledTable';
 import * as Theme from './theme';
 import { setAutoFreeze } from 'immer';
+import * as Utils from './utils';
 
 setAutoFreeze(false);
 
@@ -22,5 +23,6 @@ export {
   AsyncPivotChart,
   ToolBar,
   DragableFields,
-  Theme
+  Theme,
+  Utils
 }

@@ -1,8 +1,8 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { getTitanicData } from './mock';
 import { ToolBar, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field, AggNodeConfig } from '../src/index';
 import { TitanicCubeService } from './service';
-import { QueryPath, queryCube } from '../src/utils';
+import { QueryPath, queryCube, AsyncCacheCube } from '../src/utils';
 
 const initDraggableState: DraggableFieldState = {
   fields: [],
@@ -32,6 +32,7 @@ function AsyncApp () {
   const [fstate, setFstate] = useState<DraggableFieldState>(initDraggableState)
   const [visType, setVisType] = useState<VisType>('number');
   const [aggNodeConfig, setAggNodeConfig] = useState<AggNodeConfig>({ row: false, column: false });
+  const cubeRef = useRef<AsyncCacheCube>();
 
   useEffect(() => {
     const { dataSource, dimensions, measures } = getTitanicData();
@@ -59,9 +60,13 @@ function AsyncApp () {
     />
     {/* <PivotChart visType={visType} dataSource={data} rows={fstate['rows']} columns={fstate['columns']} measures={measures} /> */}
     <AsyncPivotChart
+      cubeRef={cubeRef}
       visType={visType}
       rows={fstate['rows']}
       columns={fstate['columns']}
+      onNestTreeChange={(left, top) => {
+        console.log({ left, top })
+      }}
       // branchFilters={[
       //   {
       //     id: 'Pclass',

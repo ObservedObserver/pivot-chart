@@ -12,7 +12,7 @@ interface TopNestGridProps {
   depth: number;
   measures: Measure[];
   onSizeChange?: (width: number, height: number) => void;
-  onExpandChange?: (lpList: string[][]) => void;
+  onExpandChange?: (lpList: string[][], nestTree: NestTree) => void;
   defaultExpandedDepth: number;
   showAggregatedNode?: boolean;
 }
@@ -128,7 +128,7 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
   useEffect(() => {
     if (onExpandChange) {
       const lpList = transTree2LeafPathList(nestTree, showAggregatedNode);
-      onExpandChange(lpList);
+      onExpandChange(lpList, nestTree);
     }
     // measures caused by side effect of dfsRender.
   }, [nestTree, measures, showAggregatedNode]);
