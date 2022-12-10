@@ -58,7 +58,7 @@
   "devDependencies": {
     "babel-plugin-import": "^1.8.0",
     "eslint": "^4.18.2",
-    "express": "^4.17.1",
+    "express": "^4.17.3",
     "fetch": "^1.1.0",
     "react-app-rewired": "^1.5.2",
     "react-redux": "^5.0.7",
