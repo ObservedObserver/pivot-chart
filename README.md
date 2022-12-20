@@ -291,3 +291,8 @@ ReactDOM.render(<App />, document.getElementById('root'))
 > SyncPivotChart vs. AsyncPivotChart ?
 
 Sync Pivot Chart does all cube computaion in frontend.(In future, it may do those work in webworker and it will seems to be async). Those cube query can be speeded up by `cube-core` which can reuse similarly groupby result.<br />Async Pivot Chart can use cube query from server or customed implementation(either on server or browser, async or sync), but developer need to figure out how to speed up those by themsleves.
+
+Sync Pivot Chart does all cube computaion in frontend.(In future, it may do those work in webworker and it will seems to be async). Those cube query can be speeded up by `cube-core` which can reuse similarly groupby result.<br />Async Pivot Chart can use cube query from server or customed implementation(either on server or browser, async or sync), but developer need to figure out how to speed up those by themsleves. 
+
+### related cool project
+[Rath: next generation of opensource augmented analytic BI](https://github.com/Kanaries/Rath)
