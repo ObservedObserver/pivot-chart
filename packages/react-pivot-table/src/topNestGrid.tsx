@@ -1,4 +1,4 @@
-import React, { useMemo, ReactNodeArray, useEffect, useRef } from "react";
+import React, { useMemo, ReactNodeArray, useEffect, useRef, ReactNode } from "react";
 import deepcopy from "deepcopy";
 import { useNestTree, transTree2LeafPathList, labelHighlightNode, clearHighlight } from "./utils";
 import { NestTree, Measure } from "./common";
@@ -52,7 +52,7 @@ function dfsRender(
   tree: NestTree,
   measures: Measure[],
   depth: number,
-  rows: ReactNodeArray[],
+  rows: ReactNode[][],
   showAggregatedNode: boolean,
   callback: (path: number[]) => void
 ) {
@@ -130,8 +130,8 @@ const TopNestGrid: React.FC<TopNestGridProps> = props => {
     setNestTree(newTree);
   }, [data, defaultExpandedDepth]);
 
-  const renderTree = useMemo<ReactNodeArray[]>(() => {
-    let ans: ReactNodeArray[] = [];
+  const renderTree = useMemo<ReactNode[][]>(() => {
+    let ans: ReactNode[][] = [];
     if (nestTree) {
       clearHighlight(nestTree);
       highlightPathList.forEach((path) => {

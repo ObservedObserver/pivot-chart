@@ -1,4 +1,4 @@
-import React, { useMemo, ReactNodeArray, useEffect } from "react";
+import React, { useMemo, useEffect, ReactNode } from "react";
 import deepcopy from "deepcopy";
 import { NestTree, VisType, DimensionArea } from "./common";
 import { useNestTree, transTree2LeafPathList, labelHighlightNode, clearHighlight } from "./utils";
@@ -50,7 +50,7 @@ function getExpandedChildSize(tree: NestTree): number {
 function dfsRender(
   tree: NestTree,
   leftRowNumber: number,
-  rows: ReactNodeArray,
+  rows: ReactNode[],
   showAggregatedNode: boolean,
   callback: (path: number[]) => void
 ) {
@@ -122,8 +122,8 @@ const LeftNestGrid: React.FC<LeftNestGridProps> = (props) => {
     }
   }, [nestTree, showAggregatedNode]);
 
-  const renderTree = useMemo<ReactNodeArray>(() => {
-    let ans: ReactNodeArray = [];
+  const renderTree = useMemo<ReactNode[]>(() => {
+    let ans: ReactNode[] = [];
     if (nestTree) {
       clearHighlight(nestTree);
       highlightPathList.forEach((path) => {

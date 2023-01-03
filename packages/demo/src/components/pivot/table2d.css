@@ -1,7 +1,0 @@
-.table2d-row{
-}
-.table2d-col{
-    overflow-x: auto;
-    border-right: 1px solid rgba(0,0,0,0.15);
-    border-bottom: 1px solid rgba(0,0,0,0.15);
-}

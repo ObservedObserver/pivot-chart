@@ -12,8 +12,8 @@
     "moduleResolution": "node",
     "downlevelIteration": true,
     "resolveJsonModule": true,
-    "typeRoots": ["node_modules/@types"]
+    "skipLibCheck": true
   },
   "exclude": [ "node_modules", "functions" ],
-  "include": ["./src/**/*"]
+  "include": ["src"]
 }
