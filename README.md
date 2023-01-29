@@ -24,7 +24,7 @@ Integrating Pivot-Chart into your data applications is easy, simply import the n
 | - | - |
 | basic expandable nest/cross table | ![basic expandable nest/cross table.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-basic.gif) |
 | custom aggregator of measures | ![ustom aggregator of measures.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-aggregator.gif) |
-| different visualization type | ![different visualization type.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-chart-light.gif)<br /> <img width="100%" src="https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-chart-static-bar.jpg" /> |
+| different visualization type | ![different visualization type.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-chart-light.gif)<br /> <img width="100%" src="https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-chart-static-bar.jpg" /> <br /> <img width="100%" src="https://ch-open-sharing.oss-us-west-1.aliyuncs.com/pivot-chart-scatter.png" /> |
 
 ## Usage
 
