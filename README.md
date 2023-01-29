@@ -10,7 +10,9 @@ pivot chart also provide with basic pivot table components for you to build your
 
 ## Demo
 
-[Online Demo](https://chspace.oss-cn-hongkong.aliyuncs.com/pivot-chart/index.html)
+[Online Demo](https://pivot-chart.vercel.app/)
+
+## Features
 
 | feature | demo(gif) |
 | - | - |
@@ -137,7 +139,7 @@ ReactDOM.render(<App />, document.getElementById('root'))
 
 <a name="8ppwU"></a>
 
-#### AsyncPivotTable
+#### AsyncPivotTable (WIP)
 
 - **cubeQuery**: `(path: QueryPath, measures: string[]) => Promise;` . A function handle for cube query. path is the groupby dimension path(made of a series of dimension and its value). measures are the fields needed to be aggregated. required
 - **branchFilter**: bad api, not recommanded to use it. a fake filter whihc only control display of node and not influence the aggregated result of parent node. optional
@@ -164,9 +166,10 @@ function AsyncApp () {
     minWidth: 100,
     formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
   })), [fstate['measures']]);
-  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
-    return TitanicCubeService(path.map(p => p.dimCode), measures);
-  }, [])
+  const cubeQuery = useCallback(async (path: QueryPath, meas: string[]) => {
+    const ops = measures.filter(m => meas.includes(m.id)).map(m => m.aggName || 'sum');
+    return TitanicCubeService(path.map(p => p.dimCode), meas, ops);
+  }, [measures])
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }} />
@@ -280,12 +283,6 @@ function App () {
 ReactDOM.render(<App />, document.getElementById('root'))
 ```
 
-
-<a name="JX52R"></a>
-## Others
-
-<br />another implementation of cube-core pivot-table can be found as `./packages/demo`<br />
-
 <a name="OPzwK"></a>
 ### Common Question
 > SyncPivotChart vs. AsyncPivotChart ?
@@ -294,5 +291,3 @@ Sync Pivot Chart does all cube computaion in frontend.(In future, it may do thos
 
 Sync Pivot Chart does all cube computaion in frontend.(In future, it may do those work in webworker and it will seems to be async). Those cube query can be speeded up by `cube-core` which can reuse similarly groupby result.<br />Async Pivot Chart can use cube query from server or customed implementation(either on server or browser, async or sync), but developer need to figure out how to speed up those by themsleves. 
 
-### related cool project
-[Rath: next generation of opensource augmented analytic BI](https://github.com/Kanaries/Rath)
