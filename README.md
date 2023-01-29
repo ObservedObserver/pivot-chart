@@ -2,7 +2,9 @@
 
 # Pivot-Chart
 ![](https://img.shields.io/npm/v/pivot-chart)
-![](https://img.shields.io/github/license/ObservedObserver/pivot-chart)
+![](https://img.shields.io/github/license/observedobserver/pivot-chart)
+![](https://img.shields.io/github/issues-pr/observedobserver/pivot-chart)
+![](https://img.shields.io/github/actions/workflow/status/observedobserver/pivot-chart/build.yml)
 
 Pivot-Chart is a comprehensive data visualization tool that enhances pivot tables with visualizations and charts, offering a more intuitive and informative way to analyze your data. With Pivot-Chart, you can elevate your data analysis and take a new approach to exploring your data. Unlike other pivot-table + vis solution, pivot chart retains nest multi-level aggregation feature of pivot table, which allows you to compare between different aggregation levels and make it easier to drill down and roll up.
 
