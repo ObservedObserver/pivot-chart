@@ -22,14 +22,17 @@ const FieldListSegment = styled.div`
   margin: 0.2em;
   div.fl-header {
     flex-basis: 100px;
+    flex-shrink: 0;
     border-right: 1px solid #DFE3E8;
     background-color: #DFE3E8;
     h4 {
       margin: 0.6em;
+      font-weight: 400;
     }
   }
   div.fl-container {
-    flex-grow: 10
+    flex-grow: 10;
+    overflow: auto;
   }
 `;
 

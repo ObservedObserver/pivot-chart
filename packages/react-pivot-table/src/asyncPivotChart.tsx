@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { DataSource, NestTree, Record, Filter, DimensionArea, PivotBaseProps } from './common';
+import { DataSource, NestTree, Record, Filter, DimensionArea, PivotBaseProps, Measure } from './common';
 import LeftNestGrid from './leftNestGrid';
 import TopNestGrid from './topNestGrid';
 import CrossTable from './crossTable';
@@ -20,7 +20,7 @@ interface AsyncPivotChartProps extends PivotBaseProps {
   branchFilters?: Filter[];
   dimensionCompare?: cmpFunc;
   onNestTreeChange?: (leftTree: NestTree, topTree: NestTree) => void;
-  cubeRef?: { current: AsyncCacheCube };
+  cubeRef?: { current: AsyncCacheCube | undefined };
   highlightPathList?: any[][];
 }
 

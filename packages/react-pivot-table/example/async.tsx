@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useMemo, useCallback, useRef } from 'react';
 import { getTitanicData } from './mock';
-import { ToolBar, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field, AggNodeConfig } from '../src/index';
+import { ToolBar, AsyncPivotChart, DragableFields, Aggregators, DataSource, VisType, DraggableFieldState, Theme, Field, AggNodeConfig, Measure } from '../src/index';
 import { TitanicCubeService } from './service';
 import { QueryPath, queryCube, AsyncCacheCube } from '../src/utils';
 
@@ -40,15 +40,16 @@ function AsyncApp () {
     const fs: Field[] = [...dimensions, ...measures].map((f: string) => ({ id: f, name: f }));
     setFields(fs);
   }, [])
-  const measures = useMemo(() => fstate['measures'].map(f => ({
+  const measures = useMemo<Measure[]>(() => fstate['measures'].map(f => ({
     ...f,
     aggregator: Aggregators[(f.aggName || 'sum') as keyof typeof Aggregators],
     minWidth: 100,
-    formatter: f.id === 'Survived' && ((val: any) => `${val} *`)
+    formatter: f.id === 'Survived' ? ((val: any) => `${val} *`) : undefined
   })), [fstate['measures']]);
-  const cubeQuery = useCallback(async (path: QueryPath, measures: string[]) => {
-    return TitanicCubeService(path.map(p => p.dimCode), measures);
-  }, [])
+  const cubeQuery = useCallback(async (path: QueryPath, meas: string[]) => {
+    const ops = measures.filter(m => meas.includes(m.id)).map(m => m.aggName || 'sum');
+    return TitanicCubeService(path.map(p => p.dimCode), meas, ops);
+  }, [measures])
   return <div>
     <DragableFields onStateChange={(state) => {setFstate(state)}} fields={fields} />
     <ToolBar visType={visType} onVisTypeChange={(type) => { setVisType(type) }}
@@ -81,7 +82,7 @@ function AsyncApp () {
       }}
       showAggregatedNode={aggNodeConfig}
       cubeQuery={cubeQuery}
-      highlightPathList={[['female', 'Q', 1]]}
+      // highlightPathList={[['female', 'Q', 1]]}
       measures={measures} />
        {/* <AsyncPivotChart
       measures={[{ id: 'Survived', name: 'survived', aggName: 'sum' }]}
