@@ -6,7 +6,7 @@
 
 pivot chart is a an extension data visualization type of pivot table. It allows user to observe the data in different chart type without limited to table and pure numbers.
 
-pivot chart also provide with basic pivot table components for you to build your web apps, you can regard pivot table as a member in the subset of pivot charts. pivot chart is build based on [cube-core](https://github.com/ObservedObserver/cube-core): an MOLAP cube solution in js.
+pivot chart also provide with basic pivot table components for you to build your web apps, you can regard pivot table as a member in the subset of pivot charts.
 
 ## Demo
 
