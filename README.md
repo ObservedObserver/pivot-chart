@@ -4,9 +4,13 @@
 ![](https://img.shields.io/npm/v/pivot-chart)
 ![](https://img.shields.io/github/license/ObservedObserver/pivot-chart)
 
-pivot chart is a an extension data visualization type of pivot table. It allows user to observe the data in different chart type without limited to table and pure numbers.
+Pivot-Chart is a comprehensive data visualization tool that enhances pivot tables with visualizations and charts, offering a more intuitive and informative way to analyze your data. With Pivot-Chart, you can elevate your data analysis and take a new approach to exploring your data. Unlike other pivot-table + vis solution, pivot chart retains nest multi-level aggregation feature of pivot table, which allows you to compare between different aggregation levels and make it easier to drill down and roll up.
 
-pivot chart also provide with basic pivot table components for you to build your web apps, you can regard pivot table as a member in the subset of pivot charts.
+Integrating Pivot-Chart into your data applications is easy, simply import the npm package. 
+
+> While this is a proof-of-concept project, your feedback and suggestions are valued and appreciated.
+
+`pivot-chart` also provide with basic pivot table components for you to build your web apps, you can regard pivot table as a member in the subset of pivot charts.
 
 ## Demo
 
