@@ -13,6 +13,8 @@
 
 [线上demo](https://chspace.oss-cn-hongkong.aliyuncs.com/pivot-chart/index.html)
 
+## 特性
+
 | 功能 | demo(gif) |
 | - | - |
 | 基本的nest/cross透视表(可展开、旋转) | ![basic expandable nest/cross table.gif](https://ch-resources.oss-cn-shanghai.aliyuncs.com/images/pivot-chart/pivot-table-basic.gif) |
@@ -280,12 +282,12 @@ ReactDOM.render(<App />, document.getElementById('root'))
 ```
 
 
-## 其他碎碎念
-另一个数据透视表的实现可以参考 `./packages/demo`
-
 ### Common Question
 > SyncPivotChart vs. AsyncPivotChart ?
 
-Sync Pivot Chart 的计算都发生在前端。这里叫sync其实有点不合适，因为后续优化这些计算也可以发生在webworker中。sync Pivot Chart中的cube计算借助了cube-core包，这使得前期可以利用计算过的分组结果，在具有行维度和列维度的情况下性能可以大幅提升。
+Sync Pivot Chart 的计算都发生在前端。这里叫sync其实有点不合适，因为后续优化这些计算也可以发生在webworker中。
 
 Async Pivot Chart的cube计算是服务端或用户自己提供的。组件本身会帮助用户缓存一些已经计算过的结果，所以重复的查询会比较少，但相似的查询之间公共结果的复用仍需要用户自己实现。
+
+### 碎碎念
+这个项目是很久之前写的了，很长一段时间都没有维护跟新了。如果你想要一些类似的组件或分析工具，可以了解我近期在开发的项目[graphic-walker](https://github.com/Kanaries/graphic-walker)，它基本上可以替代pivot-chart的场景。如果你觉得pivot-chart这个项目能帮到你，欢迎在issue中告诉我，我会很开心的重新迭代这个项目的。
