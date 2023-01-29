@@ -8,7 +8,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "webpack-dev-server",
     "initenv": "mkdir dist && cp ./example/index.html ./dist/",
-    "build": "tsc"
+    "build": "tsc",
+    "build:demo": "npm run initenv && webpack --config ./webpack.config.js"
   },
   "keywords": [
     "pivot-table",
