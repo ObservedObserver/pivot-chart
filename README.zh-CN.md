@@ -2,7 +2,9 @@
 
 # Pivot-Chart(数据透视图)
 ![](https://img.shields.io/npm/v/pivot-chart)
-![](https://img.shields.io/github/license/ObservedObserver/pivot-chart)
+![](https://img.shields.io/github/license/observedobserver/pivot-chart)
+![](https://img.shields.io/github/issues-pr/observedobserver/pivot-chart)
+![](https://img.shields.io/github/actions/workflow/status/observedobserver/pivot-chart/build.yml)
 
 
 数据透视图是数据透视表的增强拓展形式。其使得数据透视表数据展示的形式不再限于单纯的数字，使得用户可以同时拥有数据透视(旋转、切片、下钻、上卷)与可视化图表的能力。
@@ -11,7 +13,7 @@
 
 ## Demo
 
-[线上demo](https://chspace.oss-cn-hongkong.aliyuncs.com/pivot-chart/index.html)
+[线上demo](https://pivot-chart.vercel.app/)
 
 ## 特性
 
@@ -36,7 +38,7 @@ yarn add pivot-chart
 <br />basic usage.<br />
 
 ```javascript
-import { PivotChart } from 'fast-pivot';
+import { PivotChart } from 'pivot-chart';
 
 function App () {
   return <PivotChart
@@ -49,9 +51,7 @@ function App () {
 }
 ```
 
-<br />
-<br />
-<br />demo above can be run locally with<br />
+本地测试
 
 ```bash
 # init development environment
@@ -290,4 +290,4 @@ Sync Pivot Chart 的计算都发生在前端。这里叫sync其实有点不合�
 Async Pivot Chart的cube计算是服务端或用户自己提供的。组件本身会帮助用户缓存一些已经计算过的结果，所以重复的查询会比较少，但相似的查询之间公共结果的复用仍需要用户自己实现。
 
 ### 碎碎念
-这个项目是很久之前写的了，很长一段时间都没有维护跟新了。如果你想要一些类似的组件或分析工具，可以了解我近期在开发的项目[graphic-walker](https://github.com/Kanaries/graphic-walker)，它基本上可以替代pivot-chart的场景。如果你觉得pivot-chart这个项目能帮到你，欢迎在issue中告诉我，我会很开心的重新迭代这个项目的。
+这个项目是很久之前写的了，过去一段时间没有做维护更新。如果你想要一些类似的组件或分析工具，可以了解我近期在开发的项目[graphic-walker](https://github.com/Kanaries/graphic-walker)，它基本上可以替代pivot-chart的场景。如果你觉得pivot-chart这个项目能帮到你，欢迎在issue中告诉我，我会很开心的重新迭代这个项目~

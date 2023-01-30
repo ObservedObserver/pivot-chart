@@ -41,7 +41,7 @@ yarn add pivot-chart
 <br />basic usage.<br />
 
 ```javascript
-import { PivotChart } from 'fast-pivot';
+import { PivotChart } from 'pivot-chart';
 
 function App () {
   return <PivotChart
